@@ -2,7 +2,7 @@
 
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
-**Status:** Not started · Next: Day 1 - option chain fetcher with snapshot-to-fixture capture
+**Status:** Last checkpoint 2026-09-25 · Next: Day 2 - IV solver: Newton-Raphson with a Brent fallback; deep ITM/OTM and no-solution cases handled explicitly
 
 ## What this is
 
@@ -55,6 +55,7 @@ Day 1 (chain fetcher): both live sources were tried end to end from this sandbox
 <!-- CHECKPOINTS:START -->
 | Date | Commit | What changed | Next |
 |------|--------|--------------|------|
+| 2026-09-25 | `8202588` | Day 1: option chain fetcher with snapshot-to-fixture capture (volsurface.chain + volsurface.snapshot CLI). Live NSE endpoint reaches but returns HTTP 200 with an empty body from this sandbox; yfinance genuinely lists zero option expiries for RELIANCE.NS. Both findings recorded in README rather than hidden. fixtures/chains/RELIANCE.json is a hand-assembled Black-Scholes-priced payload run through the real parser (parse_nse_payload), not a live capture. 29/29 tests pass, CLI run by hand against all three providers. | Day 2 - IV solver: Newton-Raphson with a Brent fallback; deep ITM/OTM and no-solution cases handled explicitly |
 <!-- CHECKPOINTS:END -->
 
 ## Limitations and what would make me wrong
