@@ -13,6 +13,10 @@ against this chain's actual solved IVs rather than a hand-picked grid.
 
 ``--surface`` (Day 4) filters illiquid strikes, fits an OTM smile per
 expiry, and checks the fitted surface for butterfly and calendar arbitrage.
+
+``--plot`` (Day 5) builds the surface (implying ``--surface``) and writes a
+per-expiry smile PNG, an ATM term-structure PNG, a static 3D surface PNG,
+and a standalone interactive 3D surface HTML to ``outputs/``.
 """
 
 from __future__ import annotations
@@ -24,6 +28,7 @@ from pathlib import Path
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
+from volsurface.plot import PlotError, render_all
 from volsurface.surface import (
     DEFAULT_MAX_RELATIVE_SPREAD,
     DEFAULT_MIN_OPEN_INTEREST,
@@ -53,7 +58,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--max-relative-spread", type=float, default=DEFAULT_MAX_RELATIVE_SPREAD, dest="max_relative_spread",
     )
+    parser.add_argument(
+        "--plot", action="store_true",
+        help="build the surface and write smile/term-structure/3D-surface charts to outputs/ "
+        "(implies --surface)",
+    )
+    parser.add_argument(
+        "--plot-dir", type=Path, default=None, dest="plot_dir",
+        help="directory for --plot output (default: <repo root>/outputs)",
+    )
     args = parser.parse_args(argv)
+    if args.plot:
+        args.surface = True
 
     try:
         snapshot = get_provider(args.provider).fetch(args.underlying)
@@ -113,6 +129,19 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  [{v.kind}] {v.expiry} K={v.strike:.2f}: {v.detail}")
         else:
             print("no butterfly or calendar arbitrage violations found in the fitted surface")
+
+        if args.plot:
+            if not result.expiries:
+                print("plot: skipped - no expiry had enough surviving strikes to fit a smile")
+            else:
+                try:
+                    paths = render_all(result, snapshot.spot, args.underlying, args.plot_dir)
+                except PlotError as exc:
+                    print(f"plot: error: {exc}", file=sys.stderr)
+                    return 1
+                print("plot: wrote")
+                for label, path in paths.items():
+                    print(f"  {label}: {path}")
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
