@@ -10,6 +10,9 @@ a summary, and optionally writes the full per-contract table as CSV.
 row and prints the largest analytic-vs-finite-difference gap seen across the
 chain - the same cross-check ``tests/test_greeks.py`` runs per-parameter, but
 against this chain's actual solved IVs rather than a hand-picked grid.
+
+``--surface`` (Day 4) filters illiquid strikes, fits an OTM smile per
+expiry, and checks the fitted surface for butterfly and calendar arbitrage.
 """
 
 from __future__ import annotations
@@ -20,7 +23,12 @@ from pathlib import Path
 
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
-from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, solve_chain_ivs
+from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
+from volsurface.surface import (
+    DEFAULT_MAX_RELATIVE_SPREAD,
+    DEFAULT_MIN_OPEN_INTEREST,
+    build_surface,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -34,6 +42,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=None, help="write the full table as CSV here")
     parser.add_argument(
         "--greeks", action="store_true", help="attach analytic Greeks plus a finite-difference cross-check"
+    )
+    parser.add_argument(
+        "--surface", action="store_true",
+        help="filter illiquid strikes, fit an OTM smile per expiry, and check for butterfly/calendar arbitrage",
+    )
+    parser.add_argument(
+        "--min-open-interest", type=int, default=DEFAULT_MIN_OPEN_INTEREST, dest="min_open_interest",
+    )
+    parser.add_argument(
+        "--max-relative-spread", type=float, default=DEFAULT_MAX_RELATIVE_SPREAD, dest="max_relative_spread",
     )
     args = parser.parse_args(argv)
 
@@ -69,6 +87,32 @@ def main(argv: list[str] | None = None) -> int:
                 f"greeks: {len(greek_rows)}/{solved.sum()} solved contracts got analytic Greeks "
                 f"(worst analytic-vs-finite-difference gap: {worst:.2e})"
             )
+
+    if args.surface:
+        result = build_surface(
+            table,
+            snapshot.quotes,
+            snapshot.spot,
+            _valuation_date(snapshot.timestamp),
+            args.rate,
+            args.dividend_yield,
+            min_open_interest=args.min_open_interest,
+            max_relative_spread=args.max_relative_spread,
+        )
+        print(
+            f"surface: liquidity filter (open interest >= {args.min_open_interest}, "
+            f"relative spread <= {args.max_relative_spread:.2f})"
+        )
+        for expiry, counts in sorted(result.dropped_counts.items()):
+            print(f"  {expiry}: {counts['kept']}/{counts['total']} strikes kept")
+        if not result.expiries:
+            print("  no expiry had enough surviving strikes to fit a smile")
+        elif result.violations:
+            print(f"{len(result.violations)} arbitrage violation(s) found:")
+            for v in result.violations:
+                print(f"  [{v.kind}] {v.expiry} K={v.strike:.2f}: {v.detail}")
+        else:
+            print("no butterfly or calendar arbitrage violations found in the fitted surface")
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
