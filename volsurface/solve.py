@@ -5,6 +5,11 @@
 Reads a chain via any registered provider (``fixture`` by default, so this
 runs with no network), solves each row's bid/ask mid for implied vol, prints
 a summary, and optionally writes the full per-contract table as CSV.
+
+``--greeks`` (Day 3) attaches analytic delta/gamma/vega/theta to every solved
+row and prints the largest analytic-vs-finite-difference gap seen across the
+chain - the same cross-check ``tests/test_greeks.py`` runs per-parameter, but
+against this chain's actual solved IVs rather than a hand-picked grid.
 """
 
 from __future__ import annotations
@@ -14,6 +19,7 @@ import sys
 from pathlib import Path
 
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
+from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, solve_chain_ivs
 
 
@@ -26,6 +32,9 @@ def main(argv: list[str] | None = None) -> int:
         "--dividend-yield", type=float, default=DEFAULT_DIVIDEND_YIELD, dest="dividend_yield"
     )
     parser.add_argument("--out", type=Path, default=None, help="write the full table as CSV here")
+    parser.add_argument(
+        "--greeks", action="store_true", help="attach analytic Greeks plus a finite-difference cross-check"
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -50,6 +59,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{(~solved).sum()} contract(s) had no solution:")
         for _, row in table[~solved].iterrows():
             print(f"  {row['expiry']} {row['strike']} {row['option_type']}: {row['error']}")
+
+    if args.greeks:
+        table = compute_chain_greeks(table, snapshot.spot, r=args.rate, q=args.dividend_yield)
+        greek_rows = table.loc[solved, GREEK_COLUMNS].dropna()
+        if not greek_rows.empty:
+            worst = greek_rows["fd_max_abs_diff"].max()
+            print(
+                f"greeks: {len(greek_rows)}/{solved.sum()} solved contracts got analytic Greeks "
+                f"(worst analytic-vs-finite-difference gap: {worst:.2e})"
+            )
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
