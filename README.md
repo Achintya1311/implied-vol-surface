@@ -2,7 +2,7 @@
 
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
-**Status:** Last checkpoint 2026-09-25 · Next: Day 2 - IV solver: Newton-Raphson with a Brent fallback; deep ITM/OTM and no-solution cases handled explicitly
+**Status:** Last checkpoint 2026-09-26 · Next: Day 3 - Greeks analytically (delta, gamma, vega, theta) plus a finite-difference cross-check
 
 ## What this is
 
@@ -65,6 +65,7 @@ Day 2 (IV solver, `volsurface/iv.py` + `volsurface/solve.py`): Newton-Raphson wi
 <!-- CHECKPOINTS:START -->
 | Date | Commit | What changed | Next |
 |------|--------|--------------|------|
+| 2026-09-26 | `d66a5f2` | Day 2: IV solver (volsurface.iv + volsurface.solve CLI). Newton-Raphson with analytic vega, judged on step size in sigma (not price residual - a price-residual check falsely converged deep ITM/OTM, caught by the round-trip test recovering IV 0.197 against a true 0.15), falling back to a bounded Brent search when a step leaves [1e-6, 5.0]. Two no-solution classes surfaced explicitly rather than as NaN: prices outside no-arbitrage bounds, and prices within 1e-6 of their own floor - genuinely unrecoverable in double precision (S*N(d1) and K*e^{-rT}*N(d2) both O(1000), their difference O(1e-10) or smaller, no sign change for Brent to bracket). 50/52 RELIANCE fixture contracts solve; the other two (1250 CE, 1550 PE, both 5-day) are real cent-rounding artifacts that violate the no-arbitrage floor by under a paisa - recorded, not hidden. Solved against bid/ask mid, not last_price. r=6.5%/q=0% match the fixture's own pricing assumptions (Day 1 README), documented as CLI defaults, not calibrated. 73/73 tests pass (44 new), CLI run by hand end to end. | Day 3 - Greeks analytically (delta, gamma, vega, theta) plus a finite-difference cross-check |
 | 2026-09-25 | `8202588` | Day 1: option chain fetcher with snapshot-to-fixture capture (volsurface.chain + volsurface.snapshot CLI). Live NSE endpoint reaches but returns HTTP 200 with an empty body from this sandbox; yfinance genuinely lists zero option expiries for RELIANCE.NS. Both findings recorded in README rather than hidden. fixtures/chains/RELIANCE.json is a hand-assembled Black-Scholes-priced payload run through the real parser (parse_nse_payload), not a live capture. 29/29 tests pass, CLI run by hand against all three providers. | Day 2 - IV solver: Newton-Raphson with a Brent fallback; deep ITM/OTM and no-solution cases handled explicitly |
 <!-- CHECKPOINTS:END -->
 
