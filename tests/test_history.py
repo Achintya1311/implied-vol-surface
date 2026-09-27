@@ -56,6 +56,10 @@ def test_compute_daily_summary_against_real_fixture(reliance_result):
     assert summary.term_slope is not None
     assert summary.term_slope < 0
     assert summary.n_violations == 0
+    # Day 7: skew_25d on the same (atm_iv_30d) expiry, matching the fixture's
+    # documented downward equity skew (Day 1 Findings) - puts pricier than calls.
+    assert summary.skew_25d is not None
+    assert summary.skew_25d > 0
 
 
 def test_compute_daily_summary_no_expiries_survive_still_produces_a_row():
@@ -155,8 +159,10 @@ def test_cli_writes_one_row_against_fixture(tmp_path, capsys):
     assert rows[0]["run_date"] == "2026-09-27"
     assert rows[0]["data_date"] == "2026-09-24"
     assert rows[0]["underlying"] == "RELIANCE"
+    assert rows[0]["skew_25d"] > 0  # Day 7: computed against the fixture's own downward skew
     captured = capsys.readouterr()
     assert "RELIANCE" in captured.out
+    assert "skew_25d=" in captured.out
 
 
 def test_cli_rerun_same_as_of_day_is_idempotent(tmp_path):

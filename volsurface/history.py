@@ -35,6 +35,7 @@ from pathlib import Path
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
 from volsurface.plot import term_structure_points
+from volsurface.skew import SkewError, compute_skew_25d
 from volsurface.surface import (
     DEFAULT_MAX_RELATIVE_SPREAD,
     DEFAULT_MIN_OPEN_INTEREST,
@@ -62,6 +63,7 @@ HISTORY_ROW_KEYS = [
     "atm_iv_near",
     "term_slope",
     "n_violations",
+    "skew_25d",
 ]
 
 
@@ -81,6 +83,7 @@ class DailySummary:
     atm_iv_near: float | None  # nearest fitted expiry, IV at spot
     term_slope: float | None  # farthest atm_iv - nearest atm_iv; None if <2 usable expiries
     n_violations: int  # butterfly + calendar violations found on the fitted surface
+    skew_25d: float | None = None  # 25-delta put IV - 25-delta call IV, on the atm_iv_30d expiry
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -93,24 +96,43 @@ def compute_daily_summary(
     source: str,
     data_date: date,
     run_date: date,
+    r: float = DEFAULT_RATE,
+    q: float = DEFAULT_DIVIDEND_YIELD,
 ) -> DailySummary:
     """Reduce a :class:`SurfaceResult` to one small, JSON-able row.
 
     Reuses :func:`volsurface.plot.term_structure_points` rather than
     re-deriving ATM IV, so this row and the Day 5 term-structure chart can
     never silently disagree about what "ATM" means for a given expiry.
+
+    ``skew_25d`` is computed on the same expiry ``atm_iv_30d`` reads from
+    (the fitted expiry nearest :data:`TARGET_TENOR_YEARS`) via
+    :func:`volsurface.skew.compute_skew_25d`, so a reader relating the two
+    numbers is comparing the same expiry, not two different ones by
+    accident. It is left ``None`` whenever there's no ATM-in-domain expiry
+    to pick from, or the 25-delta strike isn't found inside that expiry's
+    own fitted domain (:class:`~volsurface.skew.SkewError`) - the same
+    honest-gap convention every prior day in this module uses, not a
+    fabricated number.
     """
     points = term_structure_points(result.expiries, spot)  # sorted by tenor, ATM-in-domain only
 
     atm_iv_near: float | None = None
     atm_iv_30d: float | None = None
     term_slope: float | None = None
+    skew_25d: float | None = None
 
     if points:
         atm_iv_near = points[0][2]
-        atm_iv_30d = min(points, key=lambda p: abs(p[1] - TARGET_TENOR_YEARS))[2]
+        target_expiry, _, atm_iv_30d = min(points, key=lambda p: abs(p[1] - TARGET_TENOR_YEARS))
         if len(points) >= 2:
             term_slope = points[-1][2] - points[0][2]
+
+        smile = next(es for es in result.expiries if es.expiry == target_expiry)
+        try:
+            skew_25d = compute_skew_25d(smile, spot, r, q).skew
+        except SkewError:
+            skew_25d = None
 
     return DailySummary(
         run_date=run_date.isoformat(),
@@ -123,6 +145,7 @@ def compute_daily_summary(
         atm_iv_near=atm_iv_near,
         term_slope=term_slope,
         n_violations=len(result.violations),
+        skew_25d=skew_25d,
     )
 
 
@@ -232,7 +255,8 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     summary = compute_daily_summary(
-        result, snapshot.spot, args.underlying, snapshot.source, data_date, run_date
+        result, snapshot.spot, args.underlying, snapshot.source, data_date, run_date,
+        r=args.rate, q=args.dividend_yield,
     )
 
     try:
@@ -244,7 +268,8 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"{summary.underlying} run_date={summary.run_date} data_date={summary.data_date} "
         f"source={summary.source}: atm_iv_30d={summary.atm_iv_30d}, atm_iv_near={summary.atm_iv_near}, "
-        f"term_slope={summary.term_slope}, {summary.n_violations} violation(s) "
+        f"term_slope={summary.term_slope}, skew_25d={summary.skew_25d}, "
+        f"{summary.n_violations} violation(s) "
         f"-> {out_path} ({len(history)} row(s) total)"
     )
     return 0
