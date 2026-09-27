@@ -1,0 +1,49 @@
+name: Daily snapshot
+
+on:
+  schedule:
+    # 05:00 UTC / 10:30 IST, after the NSE session has closed for the day.
+    - cron: "0 5 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Attempt a live chain capture (best effort)
+        # Day 1's own finding: NSE returns HTTP 200 with an empty body and
+        # yfinance lists no NSE single-name options from this project's
+        # sandbox - unknown whether that also holds from a GitHub-hosted
+        # runner. Best effort, not a blocker: on failure this step is
+        # allowed to fail and the job falls back to the committed fixture,
+        # per volsurface.snapshot's own contract (it never silently keeps a
+        # stale fixture on a failed live fetch - see its module docstring).
+        run: python -m volsurface.snapshot --underlying RELIANCE --provider nse
+        continue-on-error: true
+
+      - name: Append today's row to the history
+        run: python -m volsurface.history --underlying RELIANCE
+
+      - name: Commit and push if the history changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- fixtures/history fixtures/chains; then
+            echo "no change"
+          else
+            git add fixtures/history fixtures/chains
+            git commit -m "chore(history): daily snapshot $(date -u +%F)"
+            git push
+          fi
