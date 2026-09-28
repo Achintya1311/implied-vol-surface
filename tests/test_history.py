@@ -76,6 +76,39 @@ def test_compute_daily_summary_no_expiries_survive_still_produces_a_row():
 
 
 # ---------------------------------------------------------------------------
+# to_contract (v0.6 integration)
+# ---------------------------------------------------------------------------
+
+
+def test_to_contract_real_fixture_shape_and_values(reliance_result):
+    snapshot, result = reliance_result
+    summary = compute_daily_summary(
+        result, snapshot.spot, "reliance", snapshot.source,
+        data_date=date(2026, 9, 24), run_date=date(2026, 9, 27),
+    )
+    contract = summary.to_contract()
+
+    assert set(contract) == {"vol"}
+    vol = contract["vol"]
+    assert set(vol) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y"}
+    assert vol["atm_iv_30d"] == summary.atm_iv_30d
+    assert vol["skew_25d"] == summary.skew_25d
+    assert vol["term_slope"] == summary.term_slope
+    # Not fabricated: no real trailing-year history exists yet (see README Limitations).
+    assert vol["iv_rank_1y"] is None
+
+
+def test_to_contract_is_json_serialisable(reliance_result):
+    snapshot, result = reliance_result
+    summary = compute_daily_summary(
+        result, snapshot.spot, "reliance", snapshot.source,
+        data_date=date(2026, 9, 24), run_date=date(2026, 9, 27),
+    )
+    # Round-trips cleanly -- this is what the CLI writes to disk.
+    assert json.loads(json.dumps(summary.to_contract())) == summary.to_contract()
+
+
+# ---------------------------------------------------------------------------
 # append_history / load_history
 # ---------------------------------------------------------------------------
 
@@ -188,3 +221,26 @@ def test_cli_unknown_underlying_exits_nonzero(tmp_path, capsys):
     assert not out.exists()
     captured = capsys.readouterr()
     assert "error:" in captured.err
+
+
+def test_cli_contract_flag_writes_v0_6_block(tmp_path, capsys):
+    out = tmp_path / "RELIANCE.json"
+    contract_path = tmp_path / "vol_contract_RELIANCE.json"
+    rc = main([
+        "--underlying", "RELIANCE", "--provider", "fixture", "--as-of", "2026-09-27",
+        "--out", str(out), "--contract", str(contract_path),
+    ])
+    assert rc == 0
+    contract = json.loads(contract_path.read_text())
+    assert set(contract["vol"]) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y"}
+    assert contract["vol"]["atm_iv_30d"] > 0
+    assert contract["vol"]["skew_25d"] > 0
+    assert contract["vol"]["iv_rank_1y"] is None
+    captured = capsys.readouterr()
+    assert "wrote v0.6 vol contract" in captured.out
+
+
+def test_cli_without_contract_flag_writes_nothing(tmp_path):
+    out = tmp_path / "RELIANCE.json"
+    main(["--underlying", "RELIANCE", "--provider", "fixture", "--as-of", "2026-09-27", "--out", str(out)])
+    assert not (tmp_path / "vol_contract_RELIANCE.json").exists()

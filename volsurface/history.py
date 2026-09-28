@@ -88,6 +88,25 @@ class DailySummary:
     def to_dict(self) -> dict:
         return asdict(self)
 
+    def to_contract(self) -> dict:
+        """The ``vol`` block this repo publishes to the spine (v0.6).
+
+        ``iv_rank_1y`` ships ``None`` rather than a fabricated percentile:
+        this fixture's history (see README Limitations) has never
+        accumulated more than one distinct ``data_date``, so there is no
+        real trailing-year window for a percentile to rank against yet.
+        ``atm_iv_30d``, ``skew_25d`` and ``term_slope`` are the real values
+        this row already carries.
+        """
+        return {
+            "vol": {
+                "atm_iv_30d": self.atm_iv_30d,
+                "skew_25d": self.skew_25d,
+                "term_slope": self.term_slope,
+                "iv_rank_1y": None,
+            }
+        }
+
 
 def compute_daily_summary(
     result: SurfaceResult,
@@ -228,6 +247,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--out", type=Path, default=None, help="defaults to fixtures/history/<UNDERLYING>.json"
     )
+    parser.add_argument(
+        "--contract",
+        metavar="PATH",
+        default=None,
+        help="write the v0.6 vol contract block (see to_contract()) as JSON to this path, "
+        "for the spine to read as a file -- never as a Python import",
+    )
     args = parser.parse_args(argv)
 
     run_date = datetime.now(timezone.utc).date() if args.as_of is None else date.fromisoformat(args.as_of)
@@ -264,6 +290,12 @@ def main(argv: list[str] | None = None) -> int:
     except HistoryError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+
+    if args.contract:
+        contract_path = Path(args.contract)
+        contract_path.parent.mkdir(parents=True, exist_ok=True)
+        contract_path.write_text(json.dumps(summary.to_contract(), indent=2) + "\n")
+        print(f"wrote v0.6 vol contract to {contract_path}")
 
     print(
         f"{summary.underlying} run_date={summary.run_date} data_date={summary.data_date} "

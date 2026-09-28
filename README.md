@@ -54,6 +54,9 @@ python -m volsurface.solve --underlying RELIANCE --plot
 # run the pipeline once and append today's summary row to a small per-underlying history
 python -m volsurface.history --underlying RELIANCE
 
+# integration day: also write the v0.6 spine contract as JSON
+python -m volsurface.history --underlying RELIANCE --contract vol_contract_RELIANCE.json
+
 # compare mean skew_25d in the window before vs. after a scheduled event, from committed history rows
 python -m volsurface.event_skew --underlying RELIANCE --event-date 2026-10-15
 
@@ -126,6 +129,12 @@ Day 8 (`ml-pipeline-audit`, `volsurface/audit.py`): a CLI that re-verifies the t
 - **The audit functions are themselves tested against failure, not just success**: each has a test that monkeypatches the underlying check to always report clean and confirms the audit raises `AuditError` rather than reporting a false pass - an audit that can't fail is not actually checking anything.
 - 248/248 tests pass (13 new), CLI run by hand end to end (`python -m volsurface.audit --underlying RELIANCE`, exit 0) and against an unknown underlying (exit 1).
 
+Integration day (`volsurface.history.DailySummary.to_contract`, wired to `python -m volsurface.history --contract`): ships the v0.6 contract to the spine.
+
+- **The contract ships partial, on purpose, not padded to look complete.** `atm_iv_30d`, `skew_25d` and `term_slope` are the real numbers Day 6/7 already compute from the fitted RELIANCE surface (`{"atm_iv_30d": 0.215, "skew_25d": 0.0108, "term_slope": -0.0199}`). `iv_rank_1y` ships `None` rather than a fabricated percentile - a genuine gap this README's own Day 6/Limitations entries already named: this sandbox's only working data path is the fixture provider, whose `data_date` never advances, so `fixtures/history/RELIANCE.json` has never held more than one distinct trading day to rank a percentile against. `to_contract()` still writes the key (never omits it), so STOCKSTALKER's gate can distinguish "not computed yet" from "the field doesn't exist."
+- **This is a real match, not a synthetic stand-in - same as v0.3's, v0.2's and v0.4's integrations, unlike v0.7's GULFOILLUB non-match.** RELIANCE is one of STOCKSTALKER's own three universe tickers, so `python -m stockstalker.report --offline --vol-contract <path> --vol-ticker RELIANCE` attaches this contract to a real screen candidate end to end, not a hand-built fixture keyed to a name outside the universe.
+- 252/252 tests pass (4 new: `to_contract()`'s shape/value/JSON-round-trip, and the `--contract` CLI flag with and without it), CLI run by hand end to end (`python -m volsurface.history --underlying RELIANCE --contract vol_contract_RELIANCE.json`) and against STOCKSTALKER's real screen and report CLIs.
+
 ## Checkpoint log
 
 <!-- CHECKPOINTS:START -->
@@ -160,6 +169,7 @@ Day 8 (`ml-pipeline-audit`, `volsurface/audit.py`): a CLI that re-verifies the t
 - **The daily GitHub Actions workflow (`.github/workflows/daily-snapshot.yml`) has not actually run on GitHub's infrastructure yet** - only the CLI it wraps has been exercised locally. Whether NSE's endpoint behaves differently from a GitHub-hosted runner than it does from this sandbox (see Day 1 Findings for the sandbox's own block) is unverified either way.
 - **`skew_25d` is now computed (Day 7, `volsurface/skew.py`) and written into every history row, but only ever against this sandbox's single self-consistent fixture chain** - it inherits every limitation already recorded above for the smile it reads (fixture-only, arbitrage-free by construction, `q=0`, two thin expiries), plus its own: the 25-delta strike search is bounded to the fitted domain and will raise `SkewError` (recorded as `skew_25d: null` in the history row, never a guess) for any expiry whose surviving strikes don't reach ±25 delta - untested against a real chain with a genuinely too-narrow domain, only against a synthetic one in `tests/test_skew.py`.
 - **`event_skew_report`'s before/after comparison has never actually compared two different days of real data.** Every row `fixtures/history/RELIANCE.json` currently holds shares one `data_date` (see Day 6 Findings for why), so its output today is always "no comparison possible," by construction, not because the comparison logic is broken - that logic is proven separately against synthetic multi-day history in `tests/test_event_skew.py`. It also has no calendar of real scheduled events wired in; `--event-date` is whatever the caller supplies.
+- **The v0.6 contract this repo ships to STOCKSTALKER is genuinely partial, and will stay that way until this sandbox (or a GitHub-hosted runner) captures live data at least once.** `iv_rank_1y` is `None` in every contract this CLI can currently write - not because the percentile logic is unbuilt, but because there is no real trailing-year window: `fixtures/history/RELIANCE.json` has never held more than one distinct `data_date` (see the Day 6 Limitations bullet above). A reader of the gated STOCKSTALKER screen sees `atm_iv_30d` and `skew_25d` for RELIANCE.NS but no `iv_rank_1y` column, and that absence is the honest state of this integration, not a bug in `stockstalker.gates.vol`.
 
 ## Where this sits
 
@@ -168,12 +178,17 @@ Part of a nine-repo research pipeline. Stock Stalker screens the NSE universe; t
 ```json
 {
   "vol": {
-    "atm_iv_30d": 0.28,
-    "skew_25d": 0.04,
-    "iv_rank_1y": 0.62
+    "atm_iv_30d": 0.21501034475303749,
+    "skew_25d": 0.010766203205107655,
+    "term_slope": -0.019925223243860285,
+    "iv_rank_1y": null
   }
 }
 ```
+
+The values above are the real contract this repo ships against the committed RELIANCE
+fixture (`python -m volsurface.history --underlying RELIANCE --contract ...`) - not
+placeholders. `iv_rank_1y` is genuinely `null`: see Limitations for why.
 
 Communication is by file contract, not imports, so either side can be refactored without breaking the other.
 
