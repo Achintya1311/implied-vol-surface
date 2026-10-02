@@ -62,5 +62,18 @@
     "term_slope": -0.019925223243860285,
     "n_violations": 0,
     "skew_25d": 0.010766203205107655
+  },
+  {
+    "run_date": "2026-10-02",
+    "data_date": "2026-09-24",
+    "underlying": "RELIANCE",
+    "source": "hand-assembled",
+    "spot": 1400.5,
+    "n_expiries": 2,
+    "atm_iv_30d": 0.21501034475303749,
+    "atm_iv_near": 0.23493556799689777,
+    "term_slope": -0.019925223243860285,
+    "n_violations": 0,
+    "skew_25d": 0.010766203205107627
   }
 ]
