@@ -1,5 +1,7 @@
 # Implied volatility surface
 
+Educational research on historical data. Not investment advice. Not a SEBI-registered research analyst.
+
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
 **Status:** Complete on a synthetic option chain (Sep 2026). Next: rerun on real NSE option chains. Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
