@@ -6,6 +6,8 @@ Builds a volatility surface from real option chains across strikes and expiries,
 
 **Status:** Complete on a synthetic option chain (Sep 2026). Next: rerun on real NSE option chains. Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
 
+*Educational research on historical data. Not investment advice. Not a SEBI-registered research analyst.*
+
 ## What this is
 
 Solves implied volatility per contract, computes Greeks analytically and cross-checks them against finite differences, then assembles smile, term structure and surface.
