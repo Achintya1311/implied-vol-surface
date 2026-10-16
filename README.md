@@ -2,7 +2,7 @@
 
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
-**Status:** Last checkpoint 2026-09-28 · Next: headline-sentiment-vs-price Day 1 - RSS scraper respecting robots.txt, timestamped headlines
+**Status:** Complete on a synthetic option chain (Sep 2026). Next: rerun on real NSE option chains. Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
 
 ## What this is
 
