@@ -173,7 +173,12 @@ def parse_nse_payload(payload: dict, underlying: str, source: str) -> ChainSnaps
     rows: list[dict] = []
     for entry in records.get("data", []):
         strike = entry.get("strikePrice")
-        expiry_raw = entry.get("expiryDate")
+        # NSE's real option-chain-v3 payload carries the expiry on the
+        # per-strike entry as the plural ``expiryDates`` (``'DD-Mon-YYYY'``);
+        # ``expiryDate`` (singular) is accepted too in case a future/legacy
+        # payload shape puts it there instead (D9, confirmed against the
+        # home-connection captures in fixtures/chains/raw/).
+        expiry_raw = entry.get("expiryDates") or entry.get("expiryDate")
         if strike is None or not expiry_raw:
             continue
         expiry = _parse_nse_date(expiry_raw)
@@ -187,8 +192,10 @@ def parse_nse_payload(payload: dict, underlying: str, source: str) -> ChainSnaps
                     "strike": float(strike),
                     "option_type": option_type,
                     "last_price": leg.get("lastPrice"),
-                    "bid": leg.get("bidprice"),
-                    "ask": leg.get("askPrice"),
+                    # v3's real field names are buyPrice1/sellPrice1, not the
+                    # retired v2 names bidprice/askPrice (D9).
+                    "bid": leg.get("buyPrice1", leg.get("bidprice")),
+                    "ask": leg.get("sellPrice1", leg.get("askPrice")),
                     "open_interest": leg.get("openInterest"),
                     "volume": leg.get("totalTradedVolume"),
                 }
@@ -207,6 +214,36 @@ def parse_nse_payload(payload: dict, underlying: str, source: str) -> ChainSnaps
         source=source,
         quotes=df,
     )
+
+
+def merge_nse_payloads(payloads: list[dict]) -> dict:
+    """Combine several single-expiry NSE v3 payloads into one multi-expiry
+    payload :func:`parse_nse_payload` can read.
+
+    The retired v2 endpoint returned every expiry in one response; v3
+    (``api/option-chain-v3?...&expiry=DD-Mon-YYYY``) returns exactly one
+    expiry per call (D9), so a full chain now means one call per expiry,
+    merged here before parsing - the live provider and the raw-capture
+    provider both do this the same way.
+    """
+    if not payloads:
+        raise ProviderError("no payloads to merge")
+    combined_data: list[dict] = []
+    base_records: dict | None = None
+    for payload in payloads:
+        records = payload.get("records") or {}
+        if base_records is None and records.get("underlyingValue") is not None:
+            base_records = records
+        combined_data.extend(records.get("data", []))
+    if base_records is None:
+        raise ProviderError("no payload carried an underlyingValue to merge from")
+    return {
+        "records": {
+            "underlyingValue": base_records["underlyingValue"],
+            "timestamp": base_records.get("timestamp", ""),
+            "data": combined_data,
+        }
+    }
 
 
 class FixtureProvider:
@@ -230,18 +267,27 @@ class FixtureProvider:
 
 
 class NSEChainProvider:
-    """Live NSE option chain. No key, but wants a warmed cookie and a slow pace.
+    """Live NSE option chain via the v3 API. No key, but wants a warmed
+    cookie and a slow pace.
 
-    NSE's API rejects requests that arrive without a session cookie set by a
-    prior visit to the site, and rate-limits aggressively. A cookie warm-up
-    GET followed by a paced data GET, with a browser-shaped User-Agent, is
-    the polite version of what any browser does automatically.
+    NSE retired the old single-call ``option-chain-equities``/
+    ``option-chain-indices`` endpoints (404 as of 16 Oct 2026, D9). The
+    replacement, ``api/option-chain-v3``, returns exactly one expiry per
+    call, so a full chain means: warm a session cookie by visiting the
+    ``/option-chain`` page, list expiries from
+    ``api/option-chain-contract-info``, then fetch and merge
+    (:func:`merge_nse_payloads`) the first ``n_expiries`` of them - the
+    same shape ``automation/capture_chains.py`` (the home-connection job)
+    already uses, since NSE blocks cloud IPs and this provider can only be
+    exercised live from there.
     """
 
     name = "nse"
     BASE_URL = "https://www.nseindia.com"
-    EQUITY_CHAIN_PATH = "/api/option-chain-equities"
-    INDEX_CHAIN_PATH = "/api/option-chain-indices"
+    WARMUP_PATH = "/option-chain"
+    CONTRACT_INFO_PATH = "/api/option-chain-contract-info"
+    CHAIN_PATH = "/api/option-chain-v3"
+    DEFAULT_N_EXPIRIES = 3
     HEADERS = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -249,11 +295,13 @@ class NSEChainProvider:
         ),
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.nseindia.com/option-chain",
     }
 
-    def __init__(self, pause: float = 2.0, timeout: float = 15.0):
+    def __init__(self, pause: float = 2.0, timeout: float = 15.0, n_expiries: int | None = None):
         self.pause = pause
         self.timeout = timeout
+        self.n_expiries = n_expiries or self.DEFAULT_N_EXPIRIES
 
     def fetch(self, underlying: str) -> ChainSnapshot:
         import requests
@@ -261,26 +309,98 @@ class NSEChainProvider:
         session = requests.Session()
         session.headers.update(self.HEADERS)
         symbol = underlying.upper()
-        path = self.INDEX_CHAIN_PATH if symbol in INDEX_SYMBOLS else self.EQUITY_CHAIN_PATH
+        chain_type = "Indices" if symbol in INDEX_SYMBOLS else "Equity"
 
         try:
-            warmup = session.get(self.BASE_URL, timeout=self.timeout)
+            warmup = session.get(f"{self.BASE_URL}{self.WARMUP_PATH}", timeout=self.timeout)
             if warmup.status_code == 429:
                 raise RateLimited(f"NSE rate-limited the cookie warm-up for {symbol}")
             time.sleep(self.pause)
-            response = session.get(
-                f"{self.BASE_URL}{path}", params={"symbol": symbol}, timeout=self.timeout
+
+            info = session.get(
+                f"{self.BASE_URL}{self.CONTRACT_INFO_PATH}",
+                params={"symbol": symbol},
+                timeout=self.timeout,
             )
-            if response.status_code == 429:
-                raise RateLimited(f"NSE rate-limited the chain request for {symbol}")
-            response.raise_for_status()
-            payload = response.json()
-        except RateLimited:
+            if info.status_code == 429:
+                raise RateLimited(f"NSE rate-limited the expiry list for {symbol}")
+            info.raise_for_status()
+            expiries = info.json().get("expiryDates") or []
+            if not expiries:
+                raise ProviderError(f"NSE contract-info for {symbol} listed no expiries")
+
+            payloads = []
+            for expiry in expiries[: self.n_expiries]:
+                time.sleep(self.pause)
+                response = session.get(
+                    f"{self.BASE_URL}{self.CHAIN_PATH}",
+                    params={"type": chain_type, "symbol": symbol, "expiry": expiry},
+                    timeout=self.timeout,
+                )
+                if response.status_code == 429:
+                    raise RateLimited(f"NSE rate-limited the chain request for {symbol} {expiry}")
+                response.raise_for_status()
+                payloads.append(response.json())
+        except ProviderError:  # RateLimited is a ProviderError subclass too
             raise
         except Exception as exc:  # noqa: BLE001 - surface as our own error type
             raise ProviderError(f"NSE fetch failed for {symbol}: {exc}") from exc
 
-        return parse_nse_payload(payload, symbol, source=self.name)
+        merged = merge_nse_payloads(payloads)
+        return parse_nse_payload(merged, symbol, source=self.name)
+
+
+RAW_CAPTURE_DIR = FIXTURE_DIR / "raw"
+
+
+class RawCaptureProvider:
+    """Real NSE v3 option chains, captured from a home connection.
+
+    NSE blocks cloud IPs, so :class:`NSEChainProvider` can never actually
+    run from this sandbox (D8); ``automation/capture_chains.py`` in the hub
+    runs on Achintya's Mac instead and commits each expiry's raw v3
+    response, unmodified, as ``fixtures/chains/raw/<SYMBOL>/<stamp>_<expiry>.json``
+    (``{captured_at, source, payload}``). This provider merges every
+    captured expiry for a symbol (:func:`merge_nse_payloads`) and parses
+    the result through the same :func:`parse_nse_payload` a live fetch
+    would use - real NSE quotes, not a hand-built synthetic chain (D1).
+    """
+
+    name = "nse_raw"
+
+    def __init__(self, directory: Path | None = None):
+        self.directory = directory or RAW_CAPTURE_DIR
+
+    def available(self) -> list[str]:
+        if not self.directory.exists():
+            return []
+        return sorted(p.name for p in self.directory.iterdir() if p.is_dir())
+
+    def fetch(self, underlying: str) -> ChainSnapshot:
+        symbol = underlying.upper()
+        symbol_dir = None
+        for name in self.available():
+            if name.upper() == symbol:
+                symbol_dir = self.directory / name
+                break
+        if symbol_dir is None:
+            raise ProviderError(
+                f"no raw captures for {symbol}. available: {', '.join(self.available()) or 'none'}"
+            )
+        files = sorted(symbol_dir.glob("*.json"))
+        if not files:
+            raise ProviderError(f"no raw capture files for {symbol} in {symbol_dir}")
+
+        payloads = []
+        captured_ats = []
+        for file in files:
+            raw = json.loads(file.read_text())
+            payloads.append(raw["payload"])
+            captured_ats.append(raw.get("captured_at", ""))
+
+        merged = merge_nse_payloads(payloads)
+        source = f"home-connection capture ({len(files)} expiries, captured {max(captured_ats)})"
+        return parse_nse_payload(merged, symbol, source=source)
 
 
 def _to_yahoo_symbol(underlying: str) -> str:
@@ -362,6 +482,7 @@ class YFinanceChainProvider:
 PROVIDERS = {
     FixtureProvider.name: FixtureProvider,
     NSEChainProvider.name: NSEChainProvider,
+    RawCaptureProvider.name: RawCaptureProvider,
     YFinanceChainProvider.name: YFinanceChainProvider,
 }
 
