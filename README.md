@@ -39,8 +39,8 @@ Neither source needs a key. `.env.example` documents that explicitly - there is 
 
 ```bash
 uv venv && source .venv/bin/activate
-uv pip install -r requirements.txt
-python -m pytest
+uv pip install -e ".[dev]"
+pytest
 
 # offline, against the committed fixture (default provider)
 python -m volsurface.snapshot --underlying RELIANCE --provider fixture --out /tmp/RELIANCE.json

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        # Editable install, so bare `pytest` can import the package (P8: `python
+        # -m pytest` would mask a broken package by putting CWD on sys.path).
+        run: pip install -e ".[dev]"
+
+      - name: Tests
+        # Offline against committed synthetic and real-capture option-chain fixtures; no network involved.
+        run: pytest -q
