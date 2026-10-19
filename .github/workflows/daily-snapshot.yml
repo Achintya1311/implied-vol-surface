@@ -38,8 +38,8 @@ jobs:
 
       - name: Commit and push if the history changed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Achintya1311"
+          git config user.email "67464985+Achintya1311@users.noreply.github.com"
           if git diff --quiet -- fixtures/history fixtures/chains; then
             echo "no change"
           else
