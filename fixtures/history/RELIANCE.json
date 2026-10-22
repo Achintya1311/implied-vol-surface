@@ -244,5 +244,18 @@
     "term_slope": 0.0007967392638009718,
     "n_violations": 29,
     "skew_25d": -0.001984339980284633
+  },
+  {
+    "run_date": "2026-10-22",
+    "data_date": "2026-10-22",
+    "underlying": "RELIANCE",
+    "source": "nse",
+    "spot": 1190.1,
+    "n_expiries": 2,
+    "atm_iv_30d": 0.2773707219517975,
+    "atm_iv_near": 0.23318459319599125,
+    "term_slope": 0.04418612875580627,
+    "n_violations": 33,
+    "skew_25d": -0.004485167384355171
   }
 ]
