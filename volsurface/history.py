@@ -32,7 +32,7 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from volsurface.chain import PROVIDERS, ProviderError, get_provider
+from volsurface.chain import PROVIDERS, ChainSnapshot, ProviderError, get_provider
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
 from volsurface.plot import term_structure_points
 from volsurface.skew import SkewError, compute_skew_25d
@@ -254,13 +254,27 @@ def main(argv: list[str] | None = None) -> int:
         help="write the v0.6 vol contract block (see to_contract()) as JSON to this path, "
         "for the spine to read as a file -- never as a Python import",
     )
+    parser.add_argument(
+        "--chain-file",
+        type=Path,
+        default=None,
+        dest="chain_file",
+        help="read one specific chain snapshot JSON file directly, bypassing --provider. "
+        "For a day's own live capture that has been given its own path (D24) -- e.g. "
+        "fixtures/chains/live/<UNDERLYING>/<date>.json -- so the daily job's row reflects "
+        "that real capture without reading or writing the pinned regression fixture "
+        "(fixtures/chains/<UNDERLYING>.json) that tests/ depend on staying frozen.",
+    )
     args = parser.parse_args(argv)
 
     run_date = datetime.now(timezone.utc).date() if args.as_of is None else date.fromisoformat(args.as_of)
     out_path = args.out or (HISTORY_DIR / f"{args.underlying.upper()}.json")
 
     try:
-        snapshot = get_provider(args.provider).fetch(args.underlying)
+        if args.chain_file is not None:
+            snapshot = ChainSnapshot.from_json_file(args.chain_file)
+        else:
+            snapshot = get_provider(args.provider).fetch(args.underlying)
     except ProviderError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

@@ -9,7 +9,9 @@ from datetime import date
 
 import pytest
 
-from volsurface.chain import get_provider
+import pandas as pd
+
+from volsurface.chain import ChainSnapshot, get_provider
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, solve_chain_ivs
 from volsurface.history import (
     DailySummary,
@@ -244,3 +246,64 @@ def test_cli_without_contract_flag_writes_nothing(tmp_path):
     out = tmp_path / "RELIANCE.json"
     main(["--underlying", "RELIANCE", "--provider", "fixture", "--as-of", "2026-09-27", "--out", str(out)])
     assert not (tmp_path / "vol_contract_RELIANCE.json").exists()
+
+
+# ---------------------------------------------------------------------------
+# --chain-file (D24): a day's own live capture, read directly, never through
+# the pinned regression fixture.
+# ---------------------------------------------------------------------------
+
+
+def _write_live_snapshot(path, *, source="nse", data_date="2026-10-23", spot=1185.0):
+    quotes = pd.DataFrame(
+        [
+            {
+                "expiry": "2026-11-23",
+                "strike": 1180.0,
+                "option_type": "CE",
+                "last_price": 32.0,
+                "bid": 31.5,
+                "ask": 32.5,
+                "open_interest": 5000,
+                "volume": 1200,
+            }
+        ]
+    )
+    snapshot = ChainSnapshot(
+        underlying="RELIANCE", spot=spot, timestamp=f"{data_date}T15:30:00",
+        source=source, quotes=quotes,
+    )
+    snapshot.to_json_file(path)
+
+
+def test_cli_chain_file_reads_the_given_snapshot_not_the_fixture_provider(tmp_path):
+    live_file = tmp_path / "live" / "RELIANCE" / "2026-10-23.json"
+    _write_live_snapshot(live_file)
+    out = tmp_path / "RELIANCE.json"
+    rc = main(["--underlying", "RELIANCE", "--as-of", "2026-10-23", "--chain-file", str(live_file), "--out", str(out)])
+    assert rc == 0
+    rows = json.loads(out.read_text())
+    assert len(rows) == 1
+    # Reflects the live snapshot's own data, not the fixture's hand-assembled
+    # 2026-09-24/1400.5 values -- proof --chain-file bypassed --provider entirely.
+    assert rows[0]["source"] == "nse"
+    assert rows[0]["data_date"] == "2026-10-23"
+    assert rows[0]["spot"] == 1185.0
+
+
+def test_cli_chain_file_never_reads_or_writes_the_pinned_fixture(tmp_path):
+    """D24's root cause was the daily live capture overwriting the exact file
+    the 'fixture' provider (and the whole test suite) reads by default. Using
+    --chain-file for a day's own live capture must never touch that file."""
+    live_file = tmp_path / "live" / "RELIANCE" / "2026-10-24.json"
+    _write_live_snapshot(live_file, data_date="2026-10-24", spot=1190.0)
+    out = tmp_path / "history.json"
+
+    before = get_provider("fixture").fetch("RELIANCE")
+    main(["--underlying", "RELIANCE", "--as-of", "2026-10-24", "--chain-file", str(live_file), "--out", str(out)])
+    after = get_provider("fixture").fetch("RELIANCE")
+
+    assert before.source == "hand-assembled"
+    assert after.source == "hand-assembled"
+    assert after.spot == before.spot
+    assert len(after.quotes) == len(before.quotes)

@@ -20,23 +20,65 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        # Editable install (not just `pip install -r requirements.txt`), so the
+        # "Run tests" step below can use bare `pytest` (P8/LESSONS.md #3:
+        # `python -m pytest` would mask a broken package by putting CWD on
+        # sys.path).
+        run: pip install -e ".[dev]"
 
       - name: Attempt a live chain capture (best effort)
+        # D24: this now writes to its own dated path under fixtures/chains/live/,
+        # never to fixtures/chains/RELIANCE.json -- the pinned regression fixture
+        # the whole test suite reads by default via FixtureProvider. Before this
+        # fix, a successful live capture here silently overwrote that fixture,
+        # and because this job pushes with the default GITHUB_TOKEN (which GitHub
+        # documents as not re-triggering other on:push workflows), ci.yml never
+        # re-ran and 9 tests failed silently on main for 5 days.
+        #
         # Day 1's own finding: NSE returns HTTP 200 with an empty body and
         # yfinance lists no NSE single-name options from this project's
-        # sandbox - unknown whether that also holds from a GitHub-hosted
-        # runner. Best effort, not a blocker: on failure this step is
-        # allowed to fail and the job falls back to the committed fixture,
-        # per volsurface.snapshot's own contract (it never silently keeps a
-        # stale fixture on a failed live fetch - see its module docstring).
-        run: python -m volsurface.snapshot --underlying RELIANCE --provider nse
+        # interactive sandbox. D24/D25 confirmed GitHub's hosted runner is not
+        # subject to that block -- 5 consecutive real weekday captures landed
+        # 2026-10-19 through 2026-10-23 before this fix separated their path.
+        # Best effort, not a blocker: on failure this step is allowed to fail
+        # and the history job below falls back to whatever live file (if any)
+        # already landed on an earlier day, per volsurface.snapshot's own
+        # contract (it never silently keeps a stale fixture on a failed live
+        # fetch - see its module docstring).
+        run: |
+          mkdir -p fixtures/chains/live/RELIANCE
+          python -m volsurface.snapshot --underlying RELIANCE --provider nse \
+            --out "fixtures/chains/live/RELIANCE/$(date -u +%F).json"
         continue-on-error: true
 
       - name: Append today's row to the history
-        run: python -m volsurface.history --underlying RELIANCE
+        # Reads the most recently captured live file (today's, if today's
+        # capture above succeeded; otherwise whatever is already the newest
+        # one on disk) via --chain-file, so the history row -- and therefore
+        # the v0.6 contract -- reflects real NSE data whenever any capture has
+        # ever landed, without ever reading or writing the pinned fixture.
+        # Only when no live capture has ever landed does this fall back to
+        # --provider fixture (the committed synthetic chain), the same
+        # best-effort-with-an-honest-fallback contract as before this fix.
+        run: |
+          LATEST=$(ls -1 fixtures/chains/live/RELIANCE/*.json 2>/dev/null | sort | tail -n 1)
+          if [ -n "$LATEST" ]; then
+            echo "using live capture: $LATEST"
+            python -m volsurface.history --underlying RELIANCE --chain-file "$LATEST"
+          else
+            echo "no live capture has ever landed; falling back to the fixture provider"
+            python -m volsurface.history --underlying RELIANCE
+          fi
 
-      - name: Commit and push if the history changed
+      - name: Run tests before committing
+        # D24: this step did not exist, so a live capture that broke the test
+        # suite's assumptions still landed on main -- CI never re-ran to catch
+        # it (push events from the default GITHUB_TOKEN don't retrigger other
+        # on:push workflows). This blocks the commit instead, on the cheapest
+        # path available without a cross-workflow trigger.
+        run: pytest -q
+
+      - name: Commit and push if the history or chain files changed
         run: |
           git config user.name "Achintya1311"
           git config user.email "67464985+Achintya1311@users.noreply.github.com"
