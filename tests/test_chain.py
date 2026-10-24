@@ -279,13 +279,15 @@ class TestRawCaptureProvider:
     parse_nse_payload() a live fetch would use.
     """
 
-    def _write_raw(self, tmp_path, symbol: str, expiry: str, payload: dict):
-        out = tmp_path / symbol / f"2026-10-16T2319_{expiry}.json"
+    def _write_raw(
+        self, tmp_path, symbol: str, expiry: str, payload: dict, stamp: str = "2026-10-16T2319"
+    ):
+        out = tmp_path / symbol / f"{stamp}_{expiry}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(
             json.dumps(
                 {
-                    "captured_at": "2026-10-16T23:19:28.711585",
+                    "captured_at": f"{stamp}:28.711585",
                     "source": f"https://www.nseindia.com/api/option-chain-v3?symbol={symbol}&expiry={expiry}",
                     "payload": payload,
                 }
@@ -302,6 +304,30 @@ class TestRawCaptureProvider:
         assert snap.underlying == "RELIANCE"
         assert len(snap.quotes) == 6  # 4 rows from the trimmed capture + 2 from `other`
         assert set(snap.quotes["expiry"]) == {"2026-10-27", "2026-11-23"}
+
+    def test_a_later_recapture_of_the_same_expiry_replaces_the_earlier_one(self, tmp_path):
+        """D25: once a second batch lands for an expiry an earlier batch
+        already captured (expected once the corpus grows past one
+        snapshot), merging both would duplicate every (expiry, strike,
+        option_type) row and fail validate_quotes -- reproduced live on
+        GitHub's runner the day this path was added. Only the latest
+        capture per expiry should be used.
+        """
+        old = _trimmed_real_v3_payload()
+        self._write_raw(tmp_path, "RELIANCE", "27-Oct-2026", old, stamp="2026-10-16T2319")
+
+        newer = _trimmed_real_v3_payload()
+        newer["records"]["underlyingValue"] = 1190.0
+        for entry in newer["records"]["data"]:
+            entry["CE"]["lastPrice"] = 999.0
+        self._write_raw(tmp_path, "RELIANCE", "27-Oct-2026", newer, stamp="2026-10-24T0225")
+
+        snap = RawCaptureProvider(directory=tmp_path).fetch("RELIANCE")
+        assert len(snap.quotes) == 4  # not 8 -- the older recapture is dropped, not merged
+        ce_980 = snap.quotes[
+            (snap.quotes["strike"] == 980) & (snap.quotes["option_type"] == "CE")
+        ].iloc[0]
+        assert ce_980["last_price"] == pytest.approx(999.0)
 
     def test_unknown_symbol_names_the_alternatives(self, tmp_path):
         self._write_raw(tmp_path, "NIFTY", "19-Oct-2026", _trimmed_real_v3_payload())

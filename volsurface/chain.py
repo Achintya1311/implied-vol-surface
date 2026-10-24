@@ -410,6 +410,17 @@ class RawCaptureProvider:
     captured expiry for a symbol (:func:`merge_nse_payloads`) and parses
     the result through the same :func:`parse_nse_payload` a live fetch
     would use - real NSE quotes, not a hand-built synthetic chain (D1).
+
+    D25: once more than one capture batch lands for the same symbol (the
+    corpus is no longer a single 16-Oct-2026 snapshot now that
+    ``daily-snapshot.yml`` also writes here), a later batch commonly
+    re-captures an expiry an earlier batch already has -- confirmed live on
+    GitHub's runner the same day this path was added, where merging every
+    file unconditionally produced 218 duplicate (expiry, strike,
+    option_type) rows and failed :func:`validate_quotes`. Only the most
+    recently captured file *per expiry* (by its filename's ``<stamp>``
+    prefix) is kept; older recaptures of the same expiry stay on disk as a
+    historical record but are not merged into the live snapshot.
     """
 
     name = "nse_raw"
@@ -436,6 +447,16 @@ class RawCaptureProvider:
         files = sorted(symbol_dir.glob("*.json"))
         if not files:
             raise ProviderError(f"no raw capture files for {symbol} in {symbol_dir}")
+
+        # Keep only the latest file per expiry (D25). Filenames sort as
+        # <stamp>_<expiry>.json with an ISO-like stamp, so iterating in
+        # sorted (ascending) order and overwriting by expiry leaves each
+        # expiry's most recent capture.
+        latest_by_expiry: dict[str, Path] = {}
+        for file in files:
+            _stamp, _, expiry_part = file.stem.partition("_")
+            latest_by_expiry[expiry_part] = file
+        files = sorted(latest_by_expiry.values())
 
         payloads = []
         captured_ats = []
