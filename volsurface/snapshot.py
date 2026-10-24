@@ -28,12 +28,28 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="defaults to fixtures/chains/<UNDERLYING>.json",
     )
+    parser.add_argument(
+        "--raw-capture-dir",
+        type=Path,
+        default=None,
+        help=(
+            "--provider nse only: also write each expiry's raw, unmerged "
+            "NSE response under this directory, in the same shape "
+            "automation/capture_chains.py's home-connection job writes "
+            "under fixtures/chains/raw/ (D25)"
+        ),
+    )
     args = parser.parse_args(argv)
 
     out_path = args.out or (FIXTURE_DIR / f"{args.underlying.upper()}.json")
 
     try:
-        snapshot = capture_snapshot(args.underlying, provider=args.provider, out_path=out_path)
+        snapshot = capture_snapshot(
+            args.underlying,
+            provider=args.provider,
+            out_path=out_path,
+            raw_capture_dir=args.raw_capture_dir,
+        )
     except ProviderError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

@@ -246,6 +246,26 @@ def merge_nse_payloads(payloads: list[dict]) -> dict:
     }
 
 
+def _write_raw_capture(
+    raw_dir: Path,
+    symbol: str,
+    stamp: str,
+    expiry: str,
+    payload: dict,
+    source: str,
+    captured_at: str,
+) -> Path:
+    """Write one expiry's raw NSE response, unmodified, in the same
+    ``{captured_at, source, payload}`` shape and ``<stamp>_<expiry>.json``
+    naming ``automation/capture_chains.py`` (the home-connection job) already
+    uses -- so :class:`RawCaptureProvider` reads either source the same way.
+    """
+    out = Path(raw_dir) / symbol / f"{stamp}_{expiry}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({"captured_at": captured_at, "source": source, "payload": payload}))
+    return out
+
+
 class FixtureProvider:
     """Reads a committed snapshot JSON. Offline, deterministic, always available."""
 
@@ -298,10 +318,23 @@ class NSEChainProvider:
         "Referer": "https://www.nseindia.com/option-chain",
     }
 
-    def __init__(self, pause: float = 2.0, timeout: float = 15.0, n_expiries: int | None = None):
+    def __init__(
+        self,
+        pause: float = 2.0,
+        timeout: float = 15.0,
+        n_expiries: int | None = None,
+        raw_capture_dir: Path | None = None,
+    ):
         self.pause = pause
         self.timeout = timeout
         self.n_expiries = n_expiries or self.DEFAULT_N_EXPIRIES
+        # D25: when set, write each expiry's raw, unmerged NSE response here
+        # as it is fetched, in the exact shape automation/capture_chains.py
+        # (the home-connection job) already writes under
+        # fixtures/chains/raw/<SYMBOL>/ -- so RawCaptureProvider's corpus
+        # grows from GitHub's own runner too, confirmed reachable (D24),
+        # not only from Achintya's Mac.
+        self.raw_capture_dir = raw_capture_dir
 
     def fetch(self, underlying: str) -> ChainSnapshot:
         import requests
@@ -310,6 +343,8 @@ class NSEChainProvider:
         session.headers.update(self.HEADERS)
         symbol = underlying.upper()
         chain_type = "Indices" if symbol in INDEX_SYMBOLS else "Equity"
+        captured_at = datetime.now(timezone.utc)
+        stamp = captured_at.strftime("%Y-%m-%dT%H%M")
 
         try:
             warmup = session.get(f"{self.BASE_URL}{self.WARMUP_PATH}", timeout=self.timeout)
@@ -340,7 +375,18 @@ class NSEChainProvider:
                 if response.status_code == 429:
                     raise RateLimited(f"NSE rate-limited the chain request for {symbol} {expiry}")
                 response.raise_for_status()
-                payloads.append(response.json())
+                payload = response.json()
+                payloads.append(payload)
+                if self.raw_capture_dir is not None and payload.get("records", {}).get("data"):
+                    _write_raw_capture(
+                        self.raw_capture_dir,
+                        symbol,
+                        stamp,
+                        expiry,
+                        payload,
+                        source=response.url,
+                        captured_at=captured_at.isoformat(),
+                    )
         except ProviderError:  # RateLimited is a ProviderError subclass too
             raise
         except Exception as exc:  # noqa: BLE001 - surface as our own error type
@@ -494,15 +540,25 @@ def get_provider(name: str = "fixture"):
 
 
 def capture_snapshot(
-    underlying: str, provider: str = "nse", out_path: str | Path | None = None
+    underlying: str,
+    provider: str = "nse",
+    out_path: str | Path | None = None,
+    raw_capture_dir: str | Path | None = None,
 ) -> ChainSnapshot:
     """Fetch a chain and, if ``out_path`` is given, write it as a fixture.
 
     The write only happens after the fetched frame has passed
     :func:`validate_quotes` (inside the provider's own parsing), so a
     malformed response never overwrites a good committed fixture.
+
+    ``raw_capture_dir`` (D25) only applies to the ``nse`` provider -- it asks
+    :class:`NSEChainProvider` to also write each expiry's raw, unmerged
+    response under that directory as it fetches it.
     """
-    source = get_provider(provider)
+    if raw_capture_dir is not None and provider == NSEChainProvider.name:
+        source = NSEChainProvider(raw_capture_dir=Path(raw_capture_dir))
+    else:
+        source = get_provider(provider)
     snapshot = source.fetch(underlying)
     if out_path is not None:
         snapshot.to_json_file(out_path)

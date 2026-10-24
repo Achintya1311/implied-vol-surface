@@ -45,10 +45,18 @@ jobs:
         # already landed on an earlier day, per volsurface.snapshot's own
         # contract (it never silently keeps a stale fixture on a failed live
         # fetch - see its module docstring).
+        #
+        # D25: also asks NSEChainProvider to write each expiry's raw,
+        # unmerged response under fixtures/chains/raw/RELIANCE/, in the same
+        # shape automation/capture_chains.py's home-connection job already
+        # writes -- this runner is a second, independent source for that
+        # corpus now that it's confirmed to reach NSE (D24), not only
+        # Achintya's Mac.
         run: |
           mkdir -p fixtures/chains/live/RELIANCE
           python -m volsurface.snapshot --underlying RELIANCE --provider nse \
-            --out "fixtures/chains/live/RELIANCE/$(date -u +%F).json"
+            --out "fixtures/chains/live/RELIANCE/$(date -u +%F).json" \
+            --raw-capture-dir fixtures/chains/raw
         continue-on-error: true
 
       - name: Append today's row to the history
@@ -79,13 +87,18 @@ jobs:
         run: pytest -q
 
       - name: Commit and push if the history or chain files changed
+        # D25: `git diff --quiet` only reports changes to already-tracked
+        # files, so the new raw/<date>_<expiry>.json files this step's
+        # --raw-capture-dir now writes (untracked, every time) would never
+        # be seen as a change and would sit uncommitted forever. `git add`
+        # first, then diff the index against HEAD, so new raw files count.
         run: |
           git config user.name "Achintya1311"
           git config user.email "67464985+Achintya1311@users.noreply.github.com"
-          if git diff --quiet -- fixtures/history fixtures/chains; then
+          git add fixtures/history fixtures/chains
+          if git diff --cached --quiet; then
             echo "no change"
           else
-            git add fixtures/history fixtures/chains
             git commit -m "chore(history): daily snapshot $(date -u +%F)"
             git push
           fi

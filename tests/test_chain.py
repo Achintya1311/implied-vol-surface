@@ -464,6 +464,94 @@ class TestNSEChainProviderOffline:
         assert {c[1]["expiry"] for c in v3_calls} == {"27-Oct-2026", "23-Nov-2026"}
         assert len(snap.quotes) == 8  # 2 expiries x 2 strikes x 2 legs
 
+    def test_raw_capture_dir_writes_one_file_per_expiry_in_the_home_job_shape(
+        self, tmp_path, monkeypatch
+    ):
+        """D25: the per-expiry raw files this provider writes, when asked to,
+        must be readable by :class:`RawCaptureProvider` exactly like
+        ``automation/capture_chains.py``'s home-connection captures already
+        committed under ``fixtures/chains/raw/`` -- same ``{captured_at,
+        source, payload}`` shape, same ``<stamp>_<expiry>.json`` naming.
+        """
+
+        class FakeResponse:
+            def __init__(self, payload, url):
+                self.status_code = 200
+                self._payload = payload
+                self.url = url
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return self._payload
+
+        class FakeSession:
+            headers = types.SimpleNamespace(update=lambda *_: None)
+
+            def get(self, url, params=None, timeout=None):
+                if "contract-info" in url:
+                    return FakeResponse({"expiryDates": ["27-Oct-2026", "23-Nov-2026"]}, url)
+                if "option-chain-v3" in url:
+                    payload = _trimmed_real_v3_payload()
+                    payload["records"]["data"][0]["expiryDates"] = params["expiry"]
+                    payload["records"]["data"][1]["expiryDates"] = params["expiry"]
+                    full_url = f"{url}?type={params['type']}&symbol={params['symbol']}&expiry={params['expiry']}"
+                    return FakeResponse(payload, full_url)
+                return FakeResponse({}, url)  # the /option-chain warm-up GET
+
+        import requests
+
+        monkeypatch.setattr(requests, "Session", lambda: FakeSession())
+        raw_dir = tmp_path / "raw"
+        NSEChainProvider(pause=0, raw_capture_dir=raw_dir).fetch("RELIANCE")
+
+        written = sorted((raw_dir / "RELIANCE").glob("*.json"))
+        assert len(written) == 2
+        names = {p.name.split("_", 1)[1] for p in written}
+        assert names == {"27-Oct-2026.json", "23-Nov-2026.json"}
+
+        raw = json.loads(written[0].read_text())
+        assert set(raw) == {"captured_at", "source", "payload"}
+        assert "option-chain-v3" in raw["source"]
+        assert raw["payload"]["records"]["data"]
+
+        # RawCaptureProvider must be able to read these straight back.
+        snap = RawCaptureProvider(directory=raw_dir).fetch("RELIANCE")
+        assert len(snap.quotes) == 8  # 2 expiries x 2 strikes x 2 legs
+
+    def test_no_raw_capture_dir_writes_nothing(self, tmp_path, monkeypatch):
+        class FakeResponse:
+            def __init__(self, payload):
+                self.status_code = 200
+                self._payload = payload
+                self.url = "https://www.nseindia.com/api/option-chain-v3"
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return self._payload
+
+        class FakeSession:
+            headers = types.SimpleNamespace(update=lambda *_: None)
+
+            def get(self, url, params=None, timeout=None):
+                if "contract-info" in url:
+                    return FakeResponse({"expiryDates": ["27-Oct-2026"]})
+                if "option-chain-v3" in url:
+                    payload = _trimmed_real_v3_payload()
+                    payload["records"]["data"][0]["expiryDates"] = params["expiry"]
+                    payload["records"]["data"][1]["expiryDates"] = params["expiry"]
+                    return FakeResponse(payload)
+                return FakeResponse({})
+
+        import requests
+
+        monkeypatch.setattr(requests, "Session", lambda: FakeSession())
+        NSEChainProvider(pause=0).fetch("RELIANCE")
+        assert not (tmp_path / "raw").exists()
+
     def test_index_symbol_requests_the_indices_type(self, monkeypatch):
         seen_types = []
 
