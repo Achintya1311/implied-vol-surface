@@ -329,6 +329,52 @@ class TestRawCaptureProvider:
         ].iloc[0]
         assert ce_980["last_price"] == pytest.approx(999.0)
 
+    def test_an_expiry_only_in_an_older_batch_is_not_merged(self, tmp_path):
+        """P73: keeping the latest file *per expiry* mixed batches. An
+        expiry that only the older batch captured (it may even have expired
+        by the newer batch's data date) was merged with the newer quotes,
+        and spot came from the oldest file. One fetch must read one batch.
+        """
+        old = _trimmed_real_v3_payload()
+        old["records"]["underlyingValue"] = 23146.15
+        old["records"]["timestamp"] = "16-Oct-2026 15:40:00"
+        for entry in old["records"]["data"]:
+            entry["expiryDates"] = "19-Oct-2026"
+        self._write_raw(tmp_path, "NIFTY", "19-Oct-2026", old, stamp="2026-10-16T2319")
+
+        newer = _trimmed_real_v3_payload()
+        newer["records"]["underlyingValue"] = 22600.0
+        newer["records"]["timestamp"] = "23-Oct-2026 15:40:00"
+        self._write_raw(tmp_path, "NIFTY", "27-Oct-2026", newer, stamp="2026-10-25T2109")
+
+        snap = RawCaptureProvider(directory=tmp_path).fetch("NIFTY")
+        assert set(snap.quotes["expiry"]) == {"2026-10-27"}
+        assert snap.spot == pytest.approx(22600.0)
+        assert snap.timestamp.startswith("2026-10-23")
+
+    def test_capture_pins_an_older_batch(self, tmp_path):
+        old = _trimmed_real_v3_payload()
+        old["records"]["underlyingValue"] = 1400.0
+        self._write_raw(tmp_path, "RELIANCE", "27-Oct-2026", old, stamp="2026-10-16T2319")
+        newer = _trimmed_real_v3_payload()
+        newer["records"]["underlyingValue"] = 1190.0
+        self._write_raw(tmp_path, "RELIANCE", "27-Oct-2026", newer, stamp="2026-10-24T0228")
+
+        provider = RawCaptureProvider(directory=tmp_path, capture="2026-10-16T2319")
+        snap = provider.fetch("RELIANCE")
+        assert snap.spot == pytest.approx(1400.0)
+        assert "2026-10-16T2319" in snap.source
+
+    def test_unknown_capture_names_the_available_batches(self, tmp_path):
+        self._write_raw(tmp_path, "RELIANCE", "27-Oct-2026", _trimmed_real_v3_payload())
+        with pytest.raises(ProviderError, match="2026-10-16T2319"):
+            RawCaptureProvider(directory=tmp_path, capture="2026-01-01T0000").fetch("RELIANCE")
+
+    def test_capture_is_only_for_nse_raw(self):
+        assert isinstance(get_provider("nse_raw", capture="2026-10-16T2319"), RawCaptureProvider)
+        with pytest.raises(ValueError, match="nse_raw"):
+            get_provider("fixture", capture="2026-10-16T2319")
+
     def test_unknown_symbol_names_the_alternatives(self, tmp_path):
         self._write_raw(tmp_path, "NIFTY", "19-Oct-2026", _trimmed_real_v3_payload())
         with pytest.raises(ProviderError, match="available:"):
@@ -359,7 +405,16 @@ class TestRawCaptureProvider:
             snap = provider.fetch(symbol)
             assert snap.spot > 0
             assert len(snap.quotes) > 0
-            assert len(set(snap.quotes["expiry"])) == 3  # 3 captured expiries each
+            # P73: every expiry comes from one batch, the newest stamp,
+            # however many expiries that batch happened to capture.
+            stamps = {p.stem.partition("_")[0] for p in (provider.directory / symbol).glob("*.json")}
+            newest = max(stamps)
+            batch_expiries = {
+                p.stem.partition("_")[2]
+                for p in (provider.directory / symbol).glob(f"{newest}_*.json")
+            }
+            assert newest in snap.source
+            assert len(set(snap.quotes["expiry"])) == len(batch_expiries)
 
 
 class TestFixtureProvider:
@@ -683,3 +738,20 @@ class TestCaptureSnapshot:
         snap = capture_snapshot("RELIANCE", provider="fixture", out_path=None)
         assert snap.underlying == "RELIANCE"
         assert list(tmp_path.iterdir()) == []
+
+
+class TestCaptureFlag:
+    """P73: `--capture STAMP` pins one raw batch on the CLIs that take a provider."""
+
+    def test_solve_pins_the_16_oct_batch(self, capsys):
+        from volsurface import solve
+
+        assert solve.main(["--underlying", "RELIANCE", "--provider", "nse_raw", "--capture", "2026-10-16T2319"]) == 0
+        first = capsys.readouterr().out.splitlines()[0]
+        assert "(2026-10-16T" in first
+
+    def test_capture_with_another_provider_is_an_error(self, capsys):
+        from volsurface import solve
+
+        assert solve.main(["--underlying", "RELIANCE", "--provider", "fixture", "--capture", "2026-10-16T2319"]) == 1
+        assert "nse_raw" in capsys.readouterr().err

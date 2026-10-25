@@ -217,6 +217,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--underlying", required=True, help="e.g. RELIANCE")
     parser.add_argument("--provider", default="fixture", choices=sorted(PROVIDERS))
+    parser.add_argument(
+        "--capture",
+        metavar="STAMP",
+        default=None,
+        help="with --provider nse_raw, read this one raw capture batch (its <stamp>, e.g. "
+        "2026-10-16T2319) instead of the newest; for reproducing a dated finding (P73)",
+    )
     parser.add_argument("--rate", type=float, default=DEFAULT_RATE, help="annualised risk-free rate")
     parser.add_argument(
         "--dividend-yield", type=float, default=DEFAULT_DIVIDEND_YIELD, dest="dividend_yield"
@@ -233,8 +240,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        snapshot = get_provider(args.provider).fetch(args.underlying)
-    except ProviderError as exc:
+        snapshot = get_provider(args.provider, capture=args.capture).fetch(args.underlying)
+    except (ProviderError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

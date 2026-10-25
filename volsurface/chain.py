@@ -421,12 +421,20 @@ class RawCaptureProvider:
     recently captured file *per expiry* (by its filename's ``<stamp>``
     prefix) is kept; older recaptures of the same expiry stay on disk as a
     historical record but are not merged into the live snapshot.
+
+    P73: keeping the latest file per expiry still mixed batches -- an
+    expiry only an older batch captured (possibly already expired by the
+    newer batch's data date) was merged with the newer quotes, and spot
+    came from the oldest file. A fetch now reads exactly one batch (every
+    file sharing one ``<stamp>``): the newest by default, or ``capture``
+    to pin an older one, e.g. to reproduce a dated finding.
     """
 
     name = "nse_raw"
 
-    def __init__(self, directory: Path | None = None):
+    def __init__(self, directory: Path | None = None, capture: str | None = None):
         self.directory = directory or RAW_CAPTURE_DIR
+        self.capture = capture
 
     def available(self) -> list[str]:
         if not self.directory.exists():
@@ -448,15 +456,15 @@ class RawCaptureProvider:
         if not files:
             raise ProviderError(f"no raw capture files for {symbol} in {symbol_dir}")
 
-        # Keep only the latest file per expiry (D25). Filenames sort as
-        # <stamp>_<expiry>.json with an ISO-like stamp, so iterating in
-        # sorted (ascending) order and overwriting by expiry leaves each
-        # expiry's most recent capture.
-        latest_by_expiry: dict[str, Path] = {}
-        for file in files:
-            _stamp, _, expiry_part = file.stem.partition("_")
-            latest_by_expiry[expiry_part] = file
-        files = sorted(latest_by_expiry.values())
+        # One batch per fetch (P73). Filenames are <stamp>_<expiry>.json
+        # with an ISO-like stamp, so max() is the newest batch.
+        stamps = sorted({file.stem.partition("_")[0] for file in files})
+        stamp = self.capture if self.capture is not None else stamps[-1]
+        if stamp not in stamps:
+            raise ProviderError(
+                f"no raw capture batch {stamp} for {symbol}. available: {', '.join(stamps)}"
+            )
+        files = [file for file in files if file.stem.partition("_")[0] == stamp]
 
         payloads = []
         captured_ats = []
@@ -466,7 +474,7 @@ class RawCaptureProvider:
             captured_ats.append(raw.get("captured_at", ""))
 
         merged = merge_nse_payloads(payloads)
-        source = f"home-connection capture ({len(files)} expiries, captured {max(captured_ats)})"
+        source = f"home-connection capture ({len(files)} expiries, batch {stamp}, captured {max(captured_ats)})"
         return parse_nse_payload(merged, symbol, source=source)
 
 
@@ -554,9 +562,13 @@ PROVIDERS = {
 }
 
 
-def get_provider(name: str = "fixture"):
+def get_provider(name: str = "fixture", capture: str | None = None):
     if name not in PROVIDERS:
         raise ValueError(f"unknown provider '{name}'. choose from {', '.join(PROVIDERS)}")
+    if capture is not None:
+        if name != RawCaptureProvider.name:
+            raise ValueError(f"capture only applies to the {RawCaptureProvider.name} provider, not '{name}'")
+        return RawCaptureProvider(capture=capture)
     return PROVIDERS[name]()
 
 
