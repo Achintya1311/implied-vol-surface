@@ -4,13 +4,14 @@ Educational research on historical data. Not investment advice. Not a SEBI-regis
 
 **Question:** on real (not synthetic) NSE option chains, how often do raw quotes violate a no-arbitrage bound before any filtering, and does the fitted surface show real butterfly/calendar violations?
 **Method:** solve implied vol and Greeks per contract, then check the fitted smile/surface for static-arbitrage (butterfly, calendar) violations, run against six real home-connection captures (RELIANCE, NIFTY) via `--provider nse_raw`.
-**Finding (Day 10):** on real quotes, 43/218 RELIANCE and 196/704 NIFTY contracts break the no-arbitrage floor before filtering (vs. 2/52 on the old synthetic fixture) — a floor violation is routine on real noise, not rare. The fitted surface shows 26 (RELIANCE) and 149 (NIFTY) real butterfly violations, zero calendar violations.
+**Finding (Day 10, 16 Oct 2026 capture):** on real quotes, 43/218 RELIANCE and 196/704 NIFTY contracts break the no-arbitrage floor before filtering (vs. 2/52 on the old synthetic fixture) — a floor violation is routine on real noise, not rare. The fitted surface shows 26 (RELIANCE) and 149 (NIFTY) real butterfly violations, zero calendar violations.
+**Newest batch (`2026-10-25T2109`, quotes from 23 Oct 2026, rerun 25 Oct):** 38/218 RELIANCE and 129/704 NIFTY contracts break the floor; 52 (RELIANCE) and 115 (NIFTY) butterfly violations, zero calendar violations. Floor breaks stay routine across batches.
 **Chart:** `outputs/` smile/term-structure/surface PNGs from `--plot`.
-**Reproduce:** `python -m volsurface.solve --underlying RELIANCE --provider nse_raw --greeks --surface`
+**Reproduce:** `python -m volsurface.solve --underlying RELIANCE --provider nse_raw --capture 2026-10-16T2319 --greeks --surface` (the Day 10 numbers exactly; use `--underlying NIFTY` for the index, or drop `--capture` for the newest batch)
 
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
-**Status:** Rerun on real NSE option chains (Day 10, 16 Oct 2026 home-connection capture), after shipping complete on a synthetic chain (Sep 2026). Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
+**Status:** Runs on real NSE option chains. The raw corpus in `fixtures/chains/raw/` grows by one batch per capture (Achintya's Mac and the `daily-snapshot.yml` runner); each run reads one batch, the newest unless `--capture` pins another. First run on real data: Day 10, 16 Oct 2026, after shipping complete on a synthetic chain (Sep 2026). Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
 
 *Educational research on historical data. Not investment advice. Not a SEBI-registered research analyst.*
 
