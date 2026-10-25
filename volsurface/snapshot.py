@@ -15,6 +15,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from volsurface import DISCLAIMER
 from volsurface.chain import FIXTURE_DIR, PROVIDERS, ProviderError, capture_snapshot
 
 
@@ -40,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     args = parser.parse_args(argv)
+    print(DISCLAIMER)
 
     out_path = args.out or (FIXTURE_DIR / f"{args.underlying.upper()}.json")
 

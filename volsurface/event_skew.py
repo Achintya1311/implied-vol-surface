@@ -22,6 +22,7 @@ from datetime import date
 from pathlib import Path
 from statistics import mean
 
+from volsurface import DISCLAIMER
 from volsurface.history import HISTORY_DIR, HistoryError, load_history
 
 DEFAULT_WINDOW_DAYS = 5
@@ -113,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
         help="defaults to fixtures/history/<UNDERLYING>.json",
     )
     args = parser.parse_args(argv)
+    print(DISCLAIMER)
 
     path = args.history_file or (HISTORY_DIR / f"{args.underlying.upper()}.json")
     try:

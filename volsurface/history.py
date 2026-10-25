@@ -32,6 +32,7 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 
+from volsurface import DISCLAIMER
 from volsurface.chain import PROVIDERS, ChainSnapshot, ProviderError, get_provider
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
 from volsurface.plot import term_structure_points
@@ -273,6 +274,7 @@ def main(argv: list[str] | None = None) -> int:
         "(fixtures/chains/<UNDERLYING>.json) that tests/ depend on staying frozen.",
     )
     args = parser.parse_args(argv)
+    print(DISCLAIMER)
 
     run_date = datetime.now(timezone.utc).date() if args.as_of is None else date.fromisoformat(args.as_of)
     out_path = args.out or (HISTORY_DIR / f"{args.underlying.upper()}.json")

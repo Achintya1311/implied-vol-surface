@@ -41,6 +41,7 @@ import sys
 
 import numpy as np
 
+from volsurface import DISCLAIMER
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.greeks import compute_chain_greeks
 from volsurface.iv import (
@@ -238,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
         dest="max_relative_spread",
     )
     args = parser.parse_args(argv)
+    print(DISCLAIMER)
 
     try:
         snapshot = get_provider(args.provider, capture=args.capture).fetch(args.underlying)

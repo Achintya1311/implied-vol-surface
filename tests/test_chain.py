@@ -747,8 +747,8 @@ class TestCaptureFlag:
         from volsurface import solve
 
         assert solve.main(["--underlying", "RELIANCE", "--provider", "nse_raw", "--capture", "2026-10-16T2319"]) == 0
-        first = capsys.readouterr().out.splitlines()[0]
-        assert "(2026-10-16T" in first
+        header = capsys.readouterr().out.splitlines()[1]  # line 0 is the S18 disclaimer
+        assert "(2026-10-16T" in header
 
     def test_capture_with_another_provider_is_an_error(self, capsys):
         from volsurface import solve

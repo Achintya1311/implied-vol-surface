@@ -25,6 +25,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from volsurface import DISCLAIMER
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
 from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
@@ -75,6 +76,7 @@ def main(argv: list[str] | None = None) -> int:
         help="directory for --plot output (default: <repo root>/outputs)",
     )
     args = parser.parse_args(argv)
+    print(DISCLAIMER)
     if args.plot:
         args.surface = True
 
