@@ -175,3 +175,23 @@ def test_cli_unknown_underlying_exits_nonzero(capsys):
     assert rc == 1
     captured = capsys.readouterr()
     assert "error:" in captured.err
+
+
+def test_cli_labels_the_synthetic_fixture_as_synthetic(capsys):
+    # P85: the default chain is hand-assembled, so "real fixture" was the wrong name for it.
+    assert main(["--underlying", "RELIANCE", "--provider", "fixture"]) == 0
+    out = capsys.readouterr().out
+    assert "real fixture" not in out
+    assert "synthetic fixture surface: 0 arbitrage violation(s)" in out
+    assert "arbitrage-free by construction" in out
+
+
+def test_cli_on_a_real_capture_labels_it_and_drops_the_by_construction_note(capsys):
+    assert main(["--underlying", "RELIANCE", "--provider", "nse_raw", "--capture", "2026-10-16T2319"]) == 0
+    out = capsys.readouterr().out
+    assert "real NSE chain (home-connection capture" in out and "batch 2026-10-16T2319" in out
+    # Day 10's own count for this batch (README Finding).
+    assert "surface: 26 arbitrage violation(s)" in out
+    assert "arbitrage-free by construction" not in out
+    assert "real fixture" not in out
+    assert "all checks passed" in out

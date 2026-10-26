@@ -271,25 +271,33 @@ def main(argv: list[str] | None = None) -> int:
             min_open_interest=args.min_open_interest,
             max_relative_spread=args.max_relative_spread,
         )
+        # P85: name the input for what it is; only the synthetic chain is arbitrage-free by construction.
+        synthetic = snapshot.source == "hand-assembled"
+        label = "synthetic fixture" if synthetic else f"real NSE chain ({snapshot.source})"
+        note = (
+            " (0 is the fixture being arbitrage-free by construction, not proof the checks would "
+            "catch a real one - see next line)"
+            if synthetic
+            else ""
+        )
         print(
-            f"  [ok] real fixture surface: {len(result.violations)} arbitrage violation(s) found "
-            f"across {len(result.expiries)} fitted expiry/expiries (0 is the fixture being "
-            "arbitrage-free by construction, not proof the checks would catch a real one - see next line)"
+            f"  [ok] {label} surface: {len(result.violations)} arbitrage violation(s) found "
+            f"across {len(result.expiries)} fitted expiry/expiries{note}"
         )
 
         n_planted = audit_arbitrage_checks_fire_on_real_fixture(
             table, snapshot.quotes, snapshot.spot, valuation_date, args.rate, args.dividend_yield
         )
         print(
-            f"  [ok] negative control (butterfly): a deliberate IV spike planted into the real "
-            f"fixture's own strikes was caught as {n_planted} violation(s)"
+            f"  [ok] negative control (butterfly): a deliberate IV spike planted into this "
+            f"chain's own strikes was caught as {n_planted} violation(s)"
         )
 
         n_calendar = audit_calendar_check_fires_on_real_fixture(
             table, snapshot.quotes, snapshot.spot, valuation_date, args.rate, args.dividend_yield
         )
         print(
-            f"  [ok] negative control (calendar): shrinking the real fixture's far-expiry IV was "
+            f"  [ok] negative control (calendar): shrinking this chain's far-expiry IV was "
             f"caught as {n_calendar} violation(s)"
         )
     except AuditError as exc:

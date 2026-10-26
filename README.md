@@ -83,9 +83,10 @@ python -m volsurface.history --underlying RELIANCE --out outputs/RELIANCE_histor
 # compare mean skew_25d in the window before vs. after a scheduled event, from committed history rows
 python -m volsurface.event_skew --underlying RELIANCE --event-date 2026-10-15
 
-# ml-pipeline-audit: re-verify round-trip/Greeks/arbitrage against the real fixture,
-# plus negative controls proving the arbitrage checks would catch a real violation
+# ml-pipeline-audit: re-verify round-trip/Greeks/arbitrage against the synthetic fixture (default)
+# or a real capture, plus negative controls proving the arbitrage checks would catch a real violation
 python -m volsurface.audit --underlying RELIANCE
+python -m volsurface.audit --underlying RELIANCE --provider nse_raw --capture 2026-10-16T2319
 ```
 
 `volsurface.chain.FixtureProvider` is the default read path for everything downstream, so tests and later days never block on network access. `volsurface.snapshot` is the capture CLI: it fetches live and writes the same normalised shape as a fixture under `fixtures/chains/<UNDERLYING>.json` - it never falls back to a stale fixture on failure, it just exits non-zero with the provider's error.
@@ -171,6 +172,8 @@ Day 10 (fix phase, D1/D9): NSE retired the v2 option-chain endpoints this provid
 - 266/266 tests pass (14 new: the real-payload parser regression test, `merge_nse_payloads`, and `RawCaptureProvider`), `PYTHONPATH=. pytest` (bare `pytest` still can't import the package here - no `pyproject.toml`, the same pre-existing P8/P17 gap every other repo in this pipeline has, in scope for the hub's Day 13, not new today). Both CLIs run by hand end to end against the real captures (`--provider nse_raw --greeks --surface` for both RELIANCE and NIFTY) and against the untouched synthetic fixture to confirm it still solves 50/52 and shows no violations exactly as before.
 
 ## Limitations and what would make me wrong
+
+- **(D44) Daily history rows through 2026-10-23 are pre-close quotes, not end-of-day.** `daily-snapshot.yml` was scheduled for 05:00 UTC (10:30 IST, mid-session); GitHub's queue started those runs at 09:38-09:42 UTC (15:08-15:12 IST), so the live captures carry NSE timestamps such as 15:05:09 IST, about 25 minutes before the 15:30 close. From 26 Oct 2026 the job is scheduled for 11:00 UTC (16:30 IST). A scheduled run can still start hours late, so the capture time is whatever the chain's own `timestamp` says.
 
 - **`fixtures/chains/RELIANCE.json` is not a live capture.** Both live sources are blocked in practice from this sandbox (see Findings) - NSE returns HTTP 200 with an empty body, yfinance lists zero expiries for NSE single names. The fixture was built by assembling a plausible NSE-shaped payload (spot 1400.5, two expiries, 13 strikes, a downward equity skew, `r = 6.5%`, no dividend adjustment) and pricing every leg with Black-Scholes, then running that payload through the real `parse_nse_payload()` so the fixture is produced by the same code a live capture would use. It exercises the parser and the schema honestly; it does not exercise a real NSE response, and every IV computed against it in later days will be internally consistent by construction, not evidence the solver handles real market noise.
 - Quotes go stale and spreads widen. A surface built from a thin snapshot describes the spread, not the volatility.

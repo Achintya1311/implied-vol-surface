@@ -2,8 +2,12 @@ name: Daily snapshot
 
 on:
   schedule:
-    # 05:00 UTC / 10:30 IST, after the NSE session has closed for the day.
-    - cron: "0 5 * * 1-5"
+    # 11:00 UTC = 16:30 IST, an hour after the 15:30 IST NSE close (D44).
+    # Until 26 Oct 2026 this was "0 5 * * 1-5" (10:30 IST, mid-session), and
+    # GitHub's queue delay started those runs at 09:38-09:42 UTC (15:08-15:12
+    # IST), so rows through 2026-10-23 hold quotes from about 25 minutes
+    # before the close. GitHub can still delay a scheduled run by hours.
+    - cron: "0 11 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
@@ -13,11 +17,13 @@ jobs:
   snapshot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          # Same interpreter as ci.yml, so the pre-commit test step matches CI.
+          python-version: "3.12"
+          cache: pip
 
       - name: Install dependencies
         # Editable install (not just `pip install -r requirements.txt`), so the
