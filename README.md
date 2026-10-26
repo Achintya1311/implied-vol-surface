@@ -66,11 +66,19 @@ python -m volsurface.solve --underlying RELIANCE --surface
 # build the surface and write smile/term-structure/3D-surface charts to outputs/ (implies --surface)
 python -m volsurface.solve --underlying RELIANCE --plot
 
-# run the pipeline once and append today's summary row to a small per-underlying history
-python -m volsurface.history --underlying RELIANCE
+# run the pipeline once on a real capture and append its summary row to a trial history
+# (the committed fixtures/history/ holds real NSE rows only; the daily workflow appends there,
+# and a synthetic-fixture run into it is refused, D43)
+python -m volsurface.history --underlying RELIANCE \
+  --chain-file fixtures/chains/live/RELIANCE/2026-10-24.json --out outputs/RELIANCE_history_trial.json
 
 # integration day: also write the v0.6 spine contract as JSON
-python -m volsurface.history --underlying RELIANCE --contract vol_contract_RELIANCE.json
+python -m volsurface.history --underlying RELIANCE \
+  --chain-file fixtures/chains/live/RELIANCE/2026-10-24.json --out outputs/RELIANCE_history_trial.json \
+  --contract outputs/vol_contract_RELIANCE.json
+
+# the synthetic fixture still runs, into a path you name
+python -m volsurface.history --underlying RELIANCE --out outputs/RELIANCE_history_synthetic.json
 
 # compare mean skew_25d in the window before vs. after a scheduled event, from committed history rows
 python -m volsurface.event_skew --underlying RELIANCE --event-date 2026-10-15

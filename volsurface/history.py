@@ -288,6 +288,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
+    # D43: the committed history holds real NSE rows only. A synthetic or other
+    # non-NSE snapshot may still be run, but into a path the caller names.
+    if out_path.resolve().parent == HISTORY_DIR.resolve() and not snapshot.source.startswith("nse"):
+        print(
+            f"error: refusing to append a '{snapshot.source}' row to the committed history {out_path}; "
+            "it holds real NSE captures only. Pass --chain-file with a live capture, or --out "
+            "somewhere else for a trial run.",
+            file=sys.stderr,
+        )
+        return 1
+
     table = solve_chain_ivs(
         snapshot.quotes, snapshot.spot, snapshot.timestamp, r=args.rate, q=args.dividend_yield
     )

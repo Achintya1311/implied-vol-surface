@@ -307,3 +307,40 @@ def test_cli_chain_file_never_reads_or_writes_the_pinned_fixture(tmp_path):
     assert after.source == "hand-assembled"
     assert after.spot == before.spot
     assert len(after.quotes) == len(before.quotes)
+
+
+def test_cli_refuses_to_append_a_synthetic_row_to_the_committed_history(tmp_path, monkeypatch, capsys):
+    # D43: the README's own `history --underlying RELIANCE` ran the synthetic fixture into
+    # fixtures/history/RELIANCE.json, the committed history of real NSE rows.
+    from volsurface import history
+
+    committed = tmp_path / "history"
+    committed.mkdir()
+    (committed / "RELIANCE.json").write_text("[]\n")
+    monkeypatch.setattr(history, "HISTORY_DIR", committed)
+    contract = tmp_path / "c.json"
+
+    assert main(["--underlying", "RELIANCE", "--contract", str(contract)]) == 1
+    assert (committed / "RELIANCE.json").read_text() == "[]\n"
+    assert not contract.exists()
+    err = capsys.readouterr().err
+    assert "hand-assembled" in err and "--out" in err
+
+
+def test_cli_still_appends_a_real_capture_to_the_committed_history(tmp_path, monkeypatch):
+    from volsurface import history
+
+    committed = tmp_path / "history"
+    committed.mkdir()
+    monkeypatch.setattr(history, "HISTORY_DIR", committed)
+    live_file = tmp_path / "live" / "RELIANCE" / "2026-10-23.json"
+    _write_live_snapshot(live_file)
+
+    assert main(["--underlying", "RELIANCE", "--as-of", "2026-10-23", "--chain-file", str(live_file)]) == 0
+    assert json.loads((committed / "RELIANCE.json").read_text())[0]["source"] == "nse"
+
+
+def test_cli_synthetic_run_is_fine_with_its_own_out_path(tmp_path):
+    out = tmp_path / "trial.json"
+    assert main(["--underlying", "RELIANCE", "--out", str(out)]) == 0
+    assert json.loads(out.read_text())[0]["source"] == "hand-assembled"

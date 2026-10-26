@@ -65,17 +65,17 @@ jobs:
         # one on disk) via --chain-file, so the history row -- and therefore
         # the v0.6 contract -- reflects real NSE data whenever any capture has
         # ever landed, without ever reading or writing the pinned fixture.
-        # Only when no live capture has ever landed does this fall back to
-        # --provider fixture (the committed synthetic chain), the same
-        # best-effort-with-an-honest-fallback contract as before this fix.
+        # If no live capture has ever landed, the history is left unchanged
+        # (D43: it never takes a synthetic-fixture row).
         run: |
           LATEST=$(ls -1 fixtures/chains/live/RELIANCE/*.json 2>/dev/null | sort | tail -n 1)
           if [ -n "$LATEST" ]; then
             echo "using live capture: $LATEST"
             python -m volsurface.history --underlying RELIANCE --chain-file "$LATEST"
           else
-            echo "no live capture has ever landed; falling back to the fixture provider"
-            python -m volsurface.history --underlying RELIANCE
+            # D43: the committed history holds real NSE rows only; volsurface.history
+            # refuses a synthetic-fixture row there, so skip instead of failing.
+            echo "no live capture has ever landed; leaving the history unchanged"
           fi
 
       - name: Run tests before committing
