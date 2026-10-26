@@ -11,7 +11,7 @@ Educational research on historical data. Not investment advice. Not a SEBI-regis
 
 Builds a volatility surface from real option chains across strikes and expiries, with arbitrage checks that catch the artifacts a pretty 3D plot would hide.
 
-**Status:** Runs on real NSE option chains. The raw corpus in `fixtures/chains/raw/` grows by one batch per capture (Achintya's Mac and the `daily-snapshot.yml` runner); each run reads one batch, the newest unless `--capture` pins another. First run on real data: Day 10, 16 Oct 2026, after shipping complete on a synthetic chain (Sep 2026). Part of a nine-repo equity research pipeline; [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
+**Status:** Runs on real NSE option chains. The raw corpus in `fixtures/chains/raw/` grows by one batch per capture (Achintya's Mac and the `daily-snapshot.yml` runner); each run reads one batch, the newest unless `--capture` pins another. First run on real data: Day 10, 16 Oct 2026, after shipping complete on a synthetic chain (Sep 2026). Part of an eight-repo equity research pipeline (STOCKSTALKER plus seven research repos; the separate stockstalker-lab is not counted); [STOCKSTALKER](https://github.com/Achintya1311/STOCKSTALKER) is the front door.
 
 *Educational research on historical data. Not investment advice. Not a SEBI-registered research analyst.*
 
@@ -205,7 +205,7 @@ Day 10 (fix phase, D1/D9): NSE retired the v2 option-chain endpoints this provid
 
 ## Where this sits
 
-Part of a nine-repo research pipeline. Stock Stalker screens the NSE universe; this repo publishes a versioned artifact it reads back:
+Part of an eight-repo research pipeline. Stock Stalker screens the NSE universe; this repo publishes a versioned artifact it reads back:
 
 ```json
 {
