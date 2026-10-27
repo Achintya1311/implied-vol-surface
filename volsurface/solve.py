@@ -37,6 +37,7 @@ from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
 from volsurface.iv import (
     DEFAULT_DIVIDEND_YIELD,
     DEFAULT_RATE,
+    AT_OR_PAST_EXPIRY,
     NO_TWO_SIDED_QUOTE,
     _valuation_date,
     solve_chain_ivs,
@@ -151,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         errors = table["error"].fillna("")
         floor = errors.str.contains("below the no-arbitrage floor")
         no_quote = errors == NO_TWO_SIDED_QUOTE
+        expiring = errors.str.startswith(AT_OR_PAST_EXPIRY)
         quotes = snapshot.quotes.reset_index(drop=True)
         itm = ((quotes["option_type"] == "CE") & (quotes["strike"] < snapshot.spot)) | (
             (quotes["option_type"] == "PE") & (quotes["strike"] > snapshot.spot)
@@ -161,7 +163,10 @@ def main(argv: list[str] | None = None) -> int:
             f"{(floor & one_sided).sum()} priced off a one-sided quote)"
         )
         print(f"  {no_quote.sum()} with no two-sided quote (bid 0, ask 0)")
-        other = ~solved & ~floor & ~no_quote
+        if expiring.any():
+            # P131: e.g. the 27 Oct 2026 batch, quoted on the 27-Oct expiry day.
+            print(f"  {expiring.sum()} at or past expiry on the quote date (T <= 0 in whole days)")
+        other = ~solved & ~floor & ~no_quote & ~expiring
         if other.any():
             print(f"  {other.sum()} for another reason")
 

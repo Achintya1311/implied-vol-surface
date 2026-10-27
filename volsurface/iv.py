@@ -116,7 +116,7 @@ def solve_iv(
     bounds for any sigma, or the contract has non-positive time to expiry.
     """
     if T <= 0:
-        raise NoSolution(f"non-positive time to expiry ({T})")
+        raise NoSolution(f"{AT_OR_PAST_EXPIRY} ({T})")
     if S <= 0 or K <= 0:
         raise NoSolution(f"non-positive spot or strike (S={S}, K={K})")
 
@@ -195,6 +195,11 @@ def _valuation_date(timestamp: str) -> date:
     except ValueError:
         return datetime.now().date()
 
+
+# P131: time to expiry counts whole days, so a contract quoted on its own
+# expiry day (or a batch that still lists an expired one) has T <= 0 and no
+# implied vol. solve reports these on their own line.
+AT_OR_PAST_EXPIRY = "non-positive time to expiry"
 
 # D59: NSE reports a strike nobody is quoting as bid 0 / ask 0. That is a
 # missing quote, not a price below the no-arbitrage floor, so it gets its own
