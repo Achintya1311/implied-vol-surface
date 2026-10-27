@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -399,6 +399,41 @@ class NSEChainProvider:
 RAW_CAPTURE_DIR = FIXTURE_DIR / "raw"
 
 
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def batch_origin(captured_at: str) -> str:
+    """Which job wrote a raw batch, from its ``captured_at`` (P130).
+
+    The home job (hub ``automation/capture_chains.py``) writes local IST
+    time, naive until 27 Oct 2026 and ``+05:30`` after; ``daily-snapshot.yml``
+    on the Actions runner writes UTC with ``+00:00``. Anything else is
+    reported as a plain raw capture rather than guessed."""
+    try:
+        offset = datetime.fromisoformat(captured_at).utcoffset()
+    except (TypeError, ValueError):
+        return "raw capture"
+    if offset is None or offset == timedelta(hours=5, minutes=30):
+        return "home-connection capture"
+    if offset == timedelta(0):
+        return "Actions runner capture"
+    return "raw capture"
+
+
+def batch_time_utc(captured_at: str, stamp: str) -> datetime:
+    """When a batch was captured, in UTC, so home (IST) and runner (UTC)
+    batches sort into time order (P130). A naive ``captured_at`` is read
+    as IST; one that does not parse falls back to the file stamp, also
+    read as IST."""
+    try:
+        moment = datetime.fromisoformat(captured_at)
+    except (TypeError, ValueError):
+        moment = datetime.strptime(stamp, "%Y-%m-%dT%H%M")
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=IST)
+    return moment.astimezone(timezone.utc)
+
+
 class RawCaptureProvider:
     """Real NSE v3 option chains, captured from a home connection.
 
@@ -428,6 +463,12 @@ class RawCaptureProvider:
     came from the oldest file. A fetch now reads exactly one batch (every
     file sharing one ``<stamp>``): the newest by default, or ``capture``
     to pin an older one, e.g. to reproduce a dated finding.
+
+    P130: the Actions runner writes here too, with UTC stamps, while the
+    home job stamps IST. "Newest" is therefore the batch with the latest
+    ``captured_at`` in UTC (:func:`batch_time_utc`), not the largest stamp
+    text, and the snapshot's ``source`` names the job that wrote it
+    (:func:`batch_origin`).
     """
 
     name = "nse_raw"
@@ -456,25 +497,31 @@ class RawCaptureProvider:
         if not files:
             raise ProviderError(f"no raw capture files for {symbol} in {symbol_dir}")
 
-        # One batch per fetch (P73). Filenames are <stamp>_<expiry>.json
-        # with an ISO-like stamp, so max() is the newest batch.
-        stamps = sorted({file.stem.partition("_")[0] for file in files})
-        stamp = self.capture if self.capture is not None else stamps[-1]
-        if stamp not in stamps:
+        # One batch per fetch (P73): every file named <stamp>_<expiry>.json
+        # with the same stamp.
+        batches: dict[str, list[tuple[Path, dict]]] = {}
+        for file in files:
+            batches.setdefault(file.stem.partition("_")[0], []).append((file, json.loads(file.read_text())))
+        stamps = sorted(batches)
+        if self.capture is not None:
+            stamp = self.capture
+        else:
+            # P130: latest capture time in UTC, not the largest stamp text.
+            stamp = max(
+                stamps,
+                key=lambda st: max(batch_time_utc(raw.get("captured_at", ""), st) for _, raw in batches[st]),
+            )
+        if stamp not in batches:
             raise ProviderError(
                 f"no raw capture batch {stamp} for {symbol}. available: {', '.join(stamps)}"
             )
-        files = [file for file in files if file.stem.partition("_")[0] == stamp]
-
-        payloads = []
-        captured_ats = []
-        for file in files:
-            raw = json.loads(file.read_text())
-            payloads.append(raw["payload"])
-            captured_ats.append(raw.get("captured_at", ""))
+        files = [file for file, _ in batches[stamp]]
+        payloads = [raw["payload"] for _, raw in batches[stamp]]
+        captured_ats = [raw.get("captured_at", "") for _, raw in batches[stamp]]
 
         merged = merge_nse_payloads(payloads)
-        source = f"home-connection capture ({len(files)} expiries, batch {stamp}, captured {max(captured_ats)})"
+        latest = max(captured_ats)
+        source = f"{batch_origin(latest)} ({len(files)} expiries, batch {stamp}, captured {latest})"
         return parse_nse_payload(merged, symbol, source=source)
 
 
