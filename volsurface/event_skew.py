@@ -11,6 +11,10 @@ post-event window around ``--event-date``, and reports the mean
 
 This is a query over whatever history already exists; it never runs the
 pipeline itself. Run ``volsurface.history`` first to build up rows.
+
+P132: only real (``nse``) rows count, one per quote day
+(:func:`volsurface.history.quote_day_rows`), so a repeated run of the
+same quotes is not averaged in twice. The CLI says how many it dropped.
 """
 
 from __future__ import annotations
@@ -23,7 +27,7 @@ from pathlib import Path
 from statistics import mean
 
 from volsurface import DISCLAIMER
-from volsurface.history import HISTORY_DIR, HistoryError, load_history
+from volsurface.history import HISTORY_DIR, HistoryError, load_history, quote_day_rows
 
 DEFAULT_WINDOW_DAYS = 5
 
@@ -38,6 +42,8 @@ class EventSkewReport:
     post_mean_skew: float | None
     change: float | None  # post_mean_skew - pre_mean_skew
     note: str  # always set: explains the number, or explains why there isn't one
+    dropped_rows: int = 0  # synthetic rows plus repeats of a quote day already counted (P132)
+    dropped_synthetic: int = 0
 
 
 def _rows_with_skew(rows: list[dict]) -> list[dict]:
@@ -57,7 +63,8 @@ def event_skew_report(
     zero movement.
     """
     event = date.fromisoformat(event_date) if isinstance(event_date, str) else event_date
-    scored = _rows_with_skew(rows)
+    counted, n_synthetic, n_repeated = quote_day_rows(rows)
+    scored = _rows_with_skew(counted)
 
     pre = [
         r for r in scored
@@ -98,6 +105,8 @@ def event_skew_report(
         post_mean_skew=post_mean,
         change=change,
         note=note,
+        dropped_rows=n_synthetic + n_repeated,
+        dropped_synthetic=n_synthetic,
     )
 
 
@@ -134,6 +143,11 @@ def main(argv: list[str] | None = None) -> int:
         f"change={report.change}"
     )
     print(report.note)
+    if report.dropped_rows:
+        print(
+            f"dropped {report.dropped_rows} row(s): {report.dropped_synthetic} synthetic, "
+            f"{report.dropped_rows - report.dropped_synthetic} repeating a quote day already counted (P132)"
+        )
     return 0
 
 

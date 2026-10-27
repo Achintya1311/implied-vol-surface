@@ -93,9 +93,9 @@ class DailySummary:
         """The ``vol`` block this repo publishes to the spine (v0.6).
 
         ``iv_rank_1y`` ships ``None`` rather than a fabricated percentile:
-        this fixture's history (see README Limitations) has never
-        accumulated more than one distinct ``data_date``, so there is no
-        real trailing-year window for a percentile to rank against yet.
+        the committed history holds only a few real quote days (5 distinct
+        ``nse`` ``data_date`` values on 27 Oct 2026, :func:`quote_day_rows`),
+        far short of a trailing year for a percentile to rank against.
         ``atm_iv_30d``, ``skew_25d`` and ``term_slope`` are the real values
         this row already carries.
         """
@@ -173,6 +173,24 @@ def _validate_row(row: dict, path: Path) -> None:
     missing = [k for k in ("run_date", "underlying") if k not in row]
     if missing:
         raise HistoryError(f"{path}: row is missing keys {missing}: {row!r}")
+
+
+def quote_day_rows(rows: list[dict]) -> tuple[list[dict], int, int]:
+    """Rows a query over real quote days should count (P132).
+
+    Keeps only ``nse`` rows (the committed file still holds the 16
+    ``hand-assembled`` rows from before the first live capture) and one
+    row per ``(underlying, data_date)``: the latest ``run_date``, since a
+    delayed or repeated run re-records a day already captured (2026-10-20
+    repeats 10-19's quotes, 2026-10-24 repeats 10-23's). The file itself
+    keeps every row. Returns ``(kept, n_synthetic, n_repeated)``.
+    """
+    real = [r for r in rows if str(r.get("source", "")).startswith("nse")]
+    latest: dict[tuple, dict] = {}
+    for r in sorted(real, key=lambda r: r["run_date"]):
+        latest[(r.get("underlying"), r.get("data_date"))] = r
+    kept = sorted(latest.values(), key=lambda r: (r["data_date"], str(r.get("underlying"))))
+    return kept, len(rows) - len(real), len(real) - len(kept)
 
 
 def load_history(path: Path) -> list[dict]:

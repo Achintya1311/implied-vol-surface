@@ -16,7 +16,7 @@ def _row(data_date, skew_25d, run_date=None, underlying="RELIANCE"):
         "run_date": run_date or data_date,
         "data_date": data_date,
         "underlying": underlying,
-        "source": "fixture",
+        "source": "nse",  # P132: event_skew counts real (nse) rows only
         "spot": 1400.5,
         "n_expiries": 2,
         "atm_iv_30d": 0.21,
