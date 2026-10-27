@@ -112,16 +112,20 @@ def filter_liquid(
     return merged[solved & liquid_oi & liquid_spread].reset_index(drop=True)
 
 
-def select_otm(liquid_table: pd.DataFrame, spot: float) -> pd.DataFrame:
+def select_otm(
+    liquid_table: pd.DataFrame, spot: float, forwards: dict[str, float] | None = None
+) -> pd.DataFrame:
     """Keep one row per (expiry, strike): the out-of-the-money leg.
 
     Puts below spot, calls at or above spot - the side real order flow and
     open interest concentrate on, and the convention the rest of this
-    module assumes (one IV per strike, never two).
+    module assumes (one IV per strike, never two). With ``forwards`` (R25),
+    an expiry it names switches at its own forward instead of spot.
     """
     rows = []
     for (expiry, strike), group in liquid_table.groupby(["expiry", "strike"]):
-        want = "PE" if strike < spot else "CE"
+        pivot = forwards.get(expiry, spot) if forwards else spot
+        want = "PE" if strike < pivot else "CE"
         leg = group[group["option_type"] == want]
         if leg.empty:
             continue
@@ -265,6 +269,8 @@ def build_surface(
     q: float,
     min_open_interest: int = DEFAULT_MIN_OPEN_INTEREST,
     max_relative_spread: float = DEFAULT_MAX_RELATIVE_SPREAD,
+    forwards: dict[str, float] | None = None,
+    q_by_expiry: dict[str, float] | None = None,
 ) -> SurfaceResult:
     """Run the full Day-4 pipeline: filter, select OTM, fit a smile per
     expiry, then check the fitted surface for butterfly and calendar
@@ -273,9 +279,13 @@ def build_surface(
     Expiries with fewer than :data:`MIN_SMILE_POINTS` surviving strikes are
     skipped (recorded in ``dropped_counts``, not silently absent) rather
     than raising, so one thin expiry doesn't take down the whole surface.
+
+    ``forwards`` and ``q_by_expiry`` (R25) apply a per-expiry forward: the
+    OTM switch moves to it and the butterfly re-pricing uses the matching
+    dividend yield. Both default to the single spot/``q`` model.
     """
     liquid = filter_liquid(iv_table, quotes, min_open_interest, max_relative_spread)
-    otm = select_otm(liquid, spot)
+    otm = select_otm(liquid, spot, forwards)
 
     expiry_smiles: list[ExpirySmile] = []
     dropped_counts = {}
@@ -294,7 +304,8 @@ def build_surface(
 
     violations: list[ArbitrageViolation] = []
     for es in expiry_smiles:
-        violations.extend(check_butterfly(es, spot, r, q))
+        q_es = q_by_expiry.get(es.expiry, q) if q_by_expiry else q
+        violations.extend(check_butterfly(es, spot, r, q_es))
     violations.extend(check_calendar(expiry_smiles))
 
     return SurfaceResult(

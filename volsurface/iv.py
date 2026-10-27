@@ -208,8 +208,13 @@ def solve_chain_ivs(
     timestamp: str,
     r: float = DEFAULT_RATE,
     q: float = DEFAULT_DIVIDEND_YIELD,
+    q_by_expiry: dict[str, float] | None = None,
 ) -> pd.DataFrame:
     """Solve implied vol for every row of a chain's quotes frame.
+
+    ``q_by_expiry`` (R25) overrides ``q`` for the expiries it names, which is
+    how a per-expiry forward from put-call parity is applied (see
+    :mod:`volsurface.forward`); other expiries keep ``q``.
 
     Uses the bid/ask mid as the observed price (more robust than a possibly
     stale ``last_price``); a row missing both bid and ask is itself a
@@ -251,7 +256,8 @@ def solve_chain_ivs(
         T = time_to_expiry(valuation_date, row.expiry)
         result["T"] = T
         try:
-            solved = solve_iv(mid, spot, row.strike, T, r, row.option_type, q)
+            q_row = q_by_expiry.get(row.expiry, q) if q_by_expiry else q
+            solved = solve_iv(mid, spot, row.strike, T, r, row.option_type, q_row)
         except NoSolution as exc:
             result["error"] = str(exc)
             rows.append(result)

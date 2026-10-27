@@ -17,16 +17,22 @@ expiry, and checks the fitted surface for butterfly and calendar arbitrage.
 ``--plot`` (Day 5) builds the surface (implying ``--surface``) and writes a
 per-expiry smile PNG, an ATM term-structure PNG, a static 3D surface PNG,
 and a standalone interactive 3D surface HTML to ``outputs/``.
+
+``--forward parity`` (R25) replaces the single r/q forward with a per-expiry
+forward from put-call parity on the chain's own two-sided quotes (see
+``volsurface.forward``), so every count can be compared under both.
 """
 
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
 from volsurface import DISCLAIMER
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
+from volsurface.forward import implied_dividend_yields, parity_forwards
 from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
 from volsurface.iv import (
     DEFAULT_DIVIDEND_YIELD,
@@ -34,6 +40,7 @@ from volsurface.iv import (
     NO_TWO_SIDED_QUOTE,
     _valuation_date,
     solve_chain_ivs,
+    time_to_expiry,
 )
 from volsurface.plot import PlotError, render_all
 from volsurface.surface import (
@@ -57,6 +64,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rate", type=float, default=DEFAULT_RATE, help="annualised risk-free rate")
     parser.add_argument(
         "--dividend-yield", type=float, default=DEFAULT_DIVIDEND_YIELD, dest="dividend_yield"
+    )
+    parser.add_argument(
+        "--forward", choices=["model", "parity"], default="model",
+        help="model: one forward from --rate/--dividend-yield (default); parity: a per-expiry "
+        "forward from put-call parity on two-sided quotes near spot (R25)",
     )
     parser.add_argument("--out", type=Path, default=None, help="write the full table as CSV here")
     parser.add_argument(
@@ -92,8 +104,21 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
+    if args.forward == "parity" and args.greeks:
+        print("error: --greeks takes one dividend yield; it is not combined with --forward parity",
+              file=sys.stderr)
+        return 1
+
+    forwards = q_by_expiry = None
+    if args.forward == "parity":
+        valuation = _valuation_date(snapshot.timestamp)
+        parity = parity_forwards(snapshot.quotes, snapshot.spot, valuation, args.rate)
+        q_by_expiry = implied_dividend_yields(parity, snapshot.spot, valuation, args.rate)
+        forwards = {e: f.forward for e, f in parity.items()}
+
     table = solve_chain_ivs(
-        snapshot.quotes, snapshot.spot, snapshot.timestamp, r=args.rate, q=args.dividend_yield
+        snapshot.quotes, snapshot.spot, snapshot.timestamp, r=args.rate, q=args.dividend_yield,
+        q_by_expiry=q_by_expiry,
     )
 
     solved = table["error"].isna()
@@ -103,6 +128,20 @@ def main(argv: list[str] | None = None) -> int:
         f"{snapshot.underlying} @ spot {snapshot.spot} ({snapshot.timestamp}), "
         f"r={args.rate:.4f} q={args.dividend_yield:.4f}"
     )
+    if args.forward == "parity":
+        print("forward: put-call parity per expiry (median over two-sided strikes nearest spot)")
+        for expiry in sorted(table["expiry"].unique()):
+            if expiry in parity:
+                f = parity[expiry]
+                model_f = snapshot.spot * math.exp(
+                    (args.rate - args.dividend_yield) * time_to_expiry(valuation, expiry)
+                )
+                print(
+                    f"  {expiry}: F={f.forward:.2f} (model {model_f:.2f}; implied q={q_by_expiry[expiry]:.4f}; "
+                    f"{f.pairs} strike(s))"
+                )
+            else:
+                print(f"  {expiry}: no strike quoted two-sided on both legs - model forward kept")
     print(f"{solved.sum()}/{len(table)} contracts solved ({n_newton} newton, {n_brent} brent fallback)")
     if (~solved).any():
         # D59: split the unsolved rows by reason, so a missing quote is not
@@ -148,6 +187,8 @@ def main(argv: list[str] | None = None) -> int:
             args.dividend_yield,
             min_open_interest=args.min_open_interest,
             max_relative_spread=args.max_relative_spread,
+            forwards=forwards,
+            q_by_expiry=q_by_expiry,
         )
         print(
             f"surface: liquidity filter (open interest >= {args.min_open_interest}, "
