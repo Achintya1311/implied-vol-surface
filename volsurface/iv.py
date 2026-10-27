@@ -196,6 +196,12 @@ def _valuation_date(timestamp: str) -> date:
         return datetime.now().date()
 
 
+# D59: NSE reports a strike nobody is quoting as bid 0 / ask 0. That is a
+# missing quote, not a price below the no-arbitrage floor, so it gets its own
+# reason instead of being solved against a mid of 0.
+NO_TWO_SIDED_QUOTE = "no two-sided quote (bid 0, ask 0)"
+
+
 def solve_chain_ivs(
     quotes: pd.DataFrame,
     spot: float,
@@ -207,7 +213,8 @@ def solve_chain_ivs(
 
     Uses the bid/ask mid as the observed price (more robust than a possibly
     stale ``last_price``); a row missing both bid and ask is itself a
-    no-solution case, not a silent skip. Every row keeps its ``iv`` as NaN
+    no-solution case, not a silent skip, and a row quoted bid 0 / ask 0 is
+    reported as :data:`NO_TWO_SIDED_QUOTE` rather than as a floor break. Every row keeps its ``iv`` as NaN
     plus an explicit ``error`` reason when no solution exists, rather than
     dropping the row - a caller building a surface later decides how to
     treat the gap, but the gap is visible here.
@@ -234,6 +241,10 @@ def solve_chain_ivs(
         }
         if mid is None:
             result["error"] = "no bid/ask/last_price to solve against"
+            rows.append(result)
+            continue
+        if pd.notna(row.bid) and pd.notna(row.ask) and row.bid <= 0 and row.ask <= 0:
+            result["error"] = NO_TWO_SIDED_QUOTE
             rows.append(result)
             continue
 

@@ -755,3 +755,24 @@ class TestCaptureFlag:
 
         assert solve.main(["--underlying", "RELIANCE", "--provider", "fixture", "--capture", "2026-10-16T2319"]) == 1
         assert "nse_raw" in capsys.readouterr().err
+
+
+class TestUnsolvedBreakdown:
+    """D59: the solve summary separates missing quotes from floor breaks."""
+
+    @pytest.mark.parametrize(
+        "underlying,stamp,floor,no_quote,one_sided",
+        [
+            ("RELIANCE", "2026-10-16T2319", 25, 18, 2),
+            ("NIFTY", "2026-10-16T2319", 196, 0, 4),
+            ("RELIANCE", "2026-10-25T2109", 25, 13, 6),
+            ("NIFTY", "2026-10-25T2109", 129, 0, 1),
+        ],
+    )
+    def test_summary_counts(self, capsys, underlying, stamp, floor, no_quote, one_sided):
+        from volsurface import solve
+
+        assert solve.main(["--underlying", underlying, "--provider", "nse_raw", "--capture", stamp]) == 0
+        out = capsys.readouterr().out
+        assert f"{floor} below the no-arbitrage floor ({floor} in the money at spot; {one_sided} priced off a one-sided quote)" in out
+        assert f"{no_quote} with no two-sided quote (bid 0, ask 0)" in out

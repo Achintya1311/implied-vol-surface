@@ -28,7 +28,13 @@ from pathlib import Path
 from volsurface import DISCLAIMER
 from volsurface.chain import PROVIDERS, ProviderError, get_provider
 from volsurface.greeks import GREEK_COLUMNS, compute_chain_greeks
-from volsurface.iv import DEFAULT_DIVIDEND_YIELD, DEFAULT_RATE, _valuation_date, solve_chain_ivs
+from volsurface.iv import (
+    DEFAULT_DIVIDEND_YIELD,
+    DEFAULT_RATE,
+    NO_TWO_SIDED_QUOTE,
+    _valuation_date,
+    solve_chain_ivs,
+)
 from volsurface.plot import PlotError, render_all
 from volsurface.surface import (
     DEFAULT_MAX_RELATIVE_SPREAD,
@@ -99,7 +105,26 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"{solved.sum()}/{len(table)} contracts solved ({n_newton} newton, {n_brent} brent fallback)")
     if (~solved).any():
+        # D59: split the unsolved rows by reason, so a missing quote is not
+        # read as a price below the no-arbitrage floor.
         print(f"{(~solved).sum()} contract(s) had no solution:")
+        errors = table["error"].fillna("")
+        floor = errors.str.contains("below the no-arbitrage floor")
+        no_quote = errors == NO_TWO_SIDED_QUOTE
+        quotes = snapshot.quotes.reset_index(drop=True)
+        itm = ((quotes["option_type"] == "CE") & (quotes["strike"] < snapshot.spot)) | (
+            (quotes["option_type"] == "PE") & (quotes["strike"] > snapshot.spot)
+        )
+        one_sided = (quotes["bid"].fillna(0) <= 0) != (quotes["ask"].fillna(0) <= 0)
+        print(
+            f"  {floor.sum()} below the no-arbitrage floor ({(floor & itm).sum()} in the money at spot; "
+            f"{(floor & one_sided).sum()} priced off a one-sided quote)"
+        )
+        print(f"  {no_quote.sum()} with no two-sided quote (bid 0, ask 0)")
+        other = ~solved & ~floor & ~no_quote
+        if other.any():
+            print(f"  {other.sum()} for another reason")
+
         for _, row in table[~solved].iterrows():
             print(f"  {row['expiry']} {row['strike']} {row['option_type']}: {row['error']}")
 

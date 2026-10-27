@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 
 from volsurface.iv import (
+    NO_TWO_SIDED_QUOTE,
     NoSolution,
     bs_price,
     bs_vega,
@@ -215,6 +216,23 @@ class TestSolveChainIvs:
         table = solve_chain_ivs(quotes, S, "2026-09-29T15:30:00")
         assert math.isnan(table.loc[0, "iv"])
         assert "no bid/ask/last_price" in table.loc[0, "error"]
+
+    def test_zero_bid_and_ask_is_no_quote_not_a_floor_break(self):
+        # D59: NSE reports a strike nobody quotes as bid 0 / ask 0. Its mid of
+        # 0 sits below any ITM floor, but that is a missing quote, not a
+        # price below the no-arbitrage floor.
+        quotes = self._quotes(strike=1300.0, bid=0.0, ask=0.0, last_price=95.0)
+        table = solve_chain_ivs(quotes, S, "2026-09-29T15:30:00")
+        assert math.isnan(table.loc[0, "iv"])
+        assert table.loc[0, "error"] == NO_TWO_SIDED_QUOTE
+        assert "floor" not in table.loc[0, "error"]
+
+    def test_one_sided_quote_is_still_solved_from_its_mid(self):
+        T = 30 / 365
+        true_price = bs_price(S, 1400.0, T, R, 0.28, "CE")
+        quotes = self._quotes(bid=0.0, ask=2 * true_price)
+        table = solve_chain_ivs(quotes, S, "2026-09-29T15:30:00")
+        assert table.loc[0, "error"] is None
 
     def test_unsolvable_row_reports_reason_not_bare_nan(self):
         quotes = self._quotes(bid=S + 10.0, ask=S + 10.0)  # violates the call ceiling
