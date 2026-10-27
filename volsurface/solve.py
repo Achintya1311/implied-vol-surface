@@ -44,6 +44,7 @@ from volsurface.iv import (
 )
 from volsurface.plot import PlotError, render_all
 from volsurface.surface import (
+    BUTTERFLY_GRID_POINTS,
     DEFAULT_MAX_RELATIVE_SPREAD,
     DEFAULT_MIN_OPEN_INTEREST,
     build_surface,
@@ -204,6 +205,31 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  [{v.kind}] {v.expiry} K={v.strike:.2f}: {v.detail}")
         else:
             print("no butterfly or calendar arbitrage violations found in the fitted surface")
+        if result.expiries:
+            # R26: a fitted-smile count is grid points, so also say how many
+            # bends they make and what the quoted strikes themselves show.
+            n_grid = sum(c.points for c in result.clusters)
+            print(
+                f"butterfly: {n_grid} grid point(s) in {len(result.clusters)} cluster(s) on the fitted smile "
+                f"({BUTTERFLY_GRID_POINTS}-point grid per expiry)"
+            )
+            for c in result.clusters:
+                print(
+                    f"  {c.expiry} K {c.k_low:.2f}-{c.k_high:.2f}: {c.points} point(s), "
+                    f"between quoted strikes {c.quoted_low:g} and {c.quoted_high:g}"
+                )
+            qb = result.quoted
+            print(
+                f"butterfly on quoted strikes (liquid, consecutive triples, calls and puts): "
+                f"{qb.negative_mid}/{qb.triples} negative at mid, "
+                f"{qb.negative_executable}/{qb.triples} negative at executable bid/ask"
+            )
+            for e in (e for e in qb.examples if e.executable_cost < 0):
+                k1, k2, k3 = e.strikes
+                print(
+                    f"  {e.expiry} {e.option_type} {k1:g}/{k2:g}/{k3:g}: mid cost {e.mid_cost:.4f}, "
+                    f"executable cost {e.executable_cost:.4f}"
+                )
 
         if args.plot:
             if not result.expiries:

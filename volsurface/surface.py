@@ -58,6 +58,8 @@ BUTTERFLY_GRID_POINTS = 200
 # the wings where the price itself is near zero - the same lesson Day 2's
 # no-arbitrage-floor check and Day 3's Greek tolerances already record.
 BUTTERFLY_TOL = 1e-4
+# Float slack only: quoted prices are in rupees to the paisa.
+QUOTED_BUTTERFLY_EPS = 1e-9
 CALENDAR_TOL = 1e-6  # total variance is O(1e-2) to O(1e-1) here; this is float slack only
 
 
@@ -159,6 +161,7 @@ class ArbitrageViolation:
     expiry: str
     strike: float
     detail: str
+    grid_index: int | None = None  # butterfly only: position on the fitted-smile grid (R26)
 
 
 @dataclass
@@ -201,7 +204,7 @@ def check_butterfly(
     )
     curvature = calls[:-2] - 2 * calls[1:-1] + calls[2:]
     violations = []
-    for K, curv in zip(grid[1:-1], curvature):
+    for i, (K, curv) in enumerate(zip(grid[1:-1], curvature), start=1):
         if curv < -tol:
             violations.append(
                 ArbitrageViolation(
@@ -209,9 +212,114 @@ def check_butterfly(
                     expiry=expiry_smile.expiry,
                     strike=float(K),
                     detail=f"call-price curvature {curv:.6f} < -{tol:g} at K={K:.2f}",
+                    grid_index=i,
                 )
             )
     return violations
+
+
+@dataclass
+class ButterflyCluster:
+    """A run of adjacent fitted-grid points that failed :func:`check_butterfly`
+    (R26), with the quoted strikes either side of it."""
+
+    expiry: str
+    points: int
+    k_low: float
+    k_high: float
+    quoted_low: float
+    quoted_high: float
+
+
+def butterfly_clusters(
+    violations: list[ArbitrageViolation], fitted_strikes: dict[str, np.ndarray]
+) -> list[ButterflyCluster]:
+    """Group butterfly grid points into runs of adjacent grid indices per expiry.
+
+    The fitted-smile check counts grid points (:data:`BUTTERFLY_GRID_POINTS`
+    per expiry), so one bend in the smile shows up as several "violations".
+    A cluster is one bend; ``quoted_low``/``quoted_high`` are the fitted
+    (quoted) strikes bracketing it, the interval a reader can look up.
+    """
+    clusters: list[ButterflyCluster] = []
+    fly = [v for v in violations if v.kind == "butterfly" and v.grid_index is not None]
+    for expiry in dict.fromkeys(v.expiry for v in fly):
+        points = sorted((v.grid_index, v.strike) for v in fly if v.expiry == expiry)
+        strikes = np.sort(np.asarray(fitted_strikes[expiry], dtype=float))
+        run = [points[0]]
+        for prev, cur in zip(points, points[1:] + [(None, None)]):
+            if cur[0] is not None and cur[0] == prev[0] + 1:
+                run.append(cur)
+                continue
+            k_low, k_high = run[0][1], run[-1][1]
+            below = strikes[strikes <= k_low]
+            above = strikes[strikes >= k_high]
+            clusters.append(
+                ButterflyCluster(
+                    expiry=expiry,
+                    points=len(run),
+                    k_low=k_low,
+                    k_high=k_high,
+                    quoted_low=float(below.max()) if below.size else float(strikes.min()),
+                    quoted_high=float(above.min()) if above.size else float(strikes.max()),
+                )
+            )
+            if cur[0] is not None:
+                run = [cur]
+    return clusters
+
+
+@dataclass
+class QuotedButterfly:
+    expiry: str
+    option_type: str
+    strikes: tuple[float, float, float]
+    mid_cost: float
+    executable_cost: float  # wings bought at ask, body sold at bid
+
+
+@dataclass
+class QuotedButterflyResult:
+    triples: int = 0
+    negative_mid: int = 0
+    negative_executable: int = 0
+    examples: list[QuotedButterfly] = field(default_factory=list)  # every negative-mid triple
+
+
+def quoted_butterflies(quotes: pd.DataFrame) -> QuotedButterflyResult:
+    """Butterfly check on quoted strikes only, no fit (R26).
+
+    For each expiry and option type, every three consecutive quoted strikes
+    ``K1 < K2 < K3`` form a butterfly long ``w1 = (K3-K2)/(K3-K1)`` of K1,
+    short one K2 and long ``w3 = (K2-K1)/(K3-K1)`` of K3, which can never
+    cost less than zero without arbitrage. It is priced twice: at mids, and
+    at what it would cost to put on (wings at ask, body at bid). A negative
+    mid cost says the quotes are inconsistent; only a negative executable
+    cost would be a trade. ``quotes`` needs expiry, strike, option_type,
+    bid and ask, already restricted to the rows the caller trusts.
+    """
+    result = QuotedButterflyResult()
+    for (expiry, opt), group in quotes.groupby(["expiry", "option_type"]):
+        g = group.sort_values("strike").drop_duplicates("strike")
+        K = g["strike"].to_numpy(dtype=float)
+        bid = g["bid"].to_numpy(dtype=float)
+        ask = g["ask"].to_numpy(dtype=float)
+        mid = (bid + ask) / 2.0
+        for i in range(len(K) - 2):
+            k1, k2, k3 = K[i], K[i + 1], K[i + 2]
+            w1 = (k3 - k2) / (k3 - k1)
+            w3 = (k2 - k1) / (k3 - k1)
+            mid_cost = w1 * mid[i] - mid[i + 1] + w3 * mid[i + 2]
+            exec_cost = w1 * ask[i] - bid[i + 1] + w3 * ask[i + 2]
+            result.triples += 1
+            if mid_cost < -QUOTED_BUTTERFLY_EPS:
+                result.negative_mid += 1
+                result.examples.append(
+                    QuotedButterfly(expiry, opt, (float(k1), float(k2), float(k3)), float(mid_cost), float(exec_cost))
+                )
+            if exec_cost < -QUOTED_BUTTERFLY_EPS:
+                result.negative_executable += 1
+    return result
 
 
 def check_calendar(
@@ -258,6 +366,8 @@ class SurfaceResult:
     expiries: list[ExpirySmile]
     dropped_counts: dict  # expiry -> {"filtered_out": int, "kept": int}
     violations: list[ArbitrageViolation] = field(default_factory=list)
+    clusters: list[ButterflyCluster] = field(default_factory=list)
+    quoted: QuotedButterflyResult = field(default_factory=QuotedButterflyResult)
 
 
 def build_surface(
@@ -307,7 +417,11 @@ def build_surface(
         q_es = q_by_expiry.get(es.expiry, q) if q_by_expiry else q
         violations.extend(check_butterfly(es, spot, r, q_es))
     violations.extend(check_calendar(expiry_smiles))
+    clusters = butterfly_clusters(violations, {es.expiry: es.strikes for es in expiry_smiles})
+    # R26: the same liquidity filter, on quoted prices, both option types.
+    quoted = quoted_butterflies(liquid[(liquid["bid"] > 0) & (liquid["ask"] > 0)])
 
     return SurfaceResult(
-        expiries=expiry_smiles, dropped_counts=dropped_counts, violations=violations
+        expiries=expiry_smiles, dropped_counts=dropped_counts, violations=violations,
+        clusters=clusters, quoted=quoted,
     )
