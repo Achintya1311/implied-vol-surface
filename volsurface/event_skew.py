@@ -110,6 +110,37 @@ def event_skew_report(
     )
 
 
+@dataclass
+class PlaceboResult:
+    """P183: the same before/after change computed at every other real quote
+    day that has at least as many usable rows on each side as the requested
+    date. ``n_as_large`` of those ``n_dates`` move at least as much (absolute
+    change) as the requested date did; a large share means the requested
+    change is ordinary day-to-day movement, not evidence about the event."""
+
+    n_dates: int
+    n_as_large: int
+
+
+def event_skew_placebo(
+    rows: list[dict], event_date: str | date, window_days: int = DEFAULT_WINDOW_DAYS
+) -> PlaceboResult:
+    observed = event_skew_report(rows, event_date, window_days)
+    if observed.change is None:
+        return PlaceboResult(0, 0)
+    counted, _, _ = quote_day_rows(rows)
+    days = sorted({r["data_date"] for r in _rows_with_skew(counted)} - {observed.event_date})
+    n_dates = n_as_large = 0
+    for d in days:
+        other = event_skew_report(rows, d, window_days)
+        if other.change is None or other.pre_rows < observed.pre_rows or other.post_rows < observed.post_rows:
+            continue
+        n_dates += 1
+        if abs(other.change) >= abs(observed.change) - 1e-12:
+            n_as_large += 1
+    return PlaceboResult(n_dates, n_as_large)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--underlying", required=True, help="e.g. RELIANCE")
@@ -143,6 +174,12 @@ def main(argv: list[str] | None = None) -> int:
         f"change={report.change}"
     )
     print(report.note)
+    if report.change is not None:
+        placebo = event_skew_placebo(rows, args.event_date, args.window_days)
+        print(
+            f"placebo: of {placebo.n_dates} other quote day(s) with at least as many rows on each side, "
+            f"{placebo.n_as_large} show a change at least as large in absolute size (P183)"
+        )
     if report.dropped_rows:
         print(
             f"dropped {report.dropped_rows} row(s): {report.dropped_synthetic} synthetic, "
