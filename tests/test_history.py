@@ -92,7 +92,7 @@ def test_to_contract_real_fixture_shape_and_values(reliance_result):
 
     assert set(contract) == {"vol"}
     vol = contract["vol"]
-    assert set(vol) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y"}
+    assert set(vol) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y", "atm_tenor_days", "term_slope_tenor_days"}  # P181
     assert vol["atm_iv_30d"] == summary.atm_iv_30d
     assert vol["skew_25d"] == summary.skew_25d
     assert vol["term_slope"] == summary.term_slope
@@ -234,7 +234,7 @@ def test_cli_contract_flag_writes_v0_6_block(tmp_path, capsys):
     ])
     assert rc == 0
     contract = json.loads(contract_path.read_text())
-    assert set(contract["vol"]) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y"}
+    assert set(contract["vol"]) == {"atm_iv_30d", "skew_25d", "term_slope", "iv_rank_1y", "atm_tenor_days", "term_slope_tenor_days"}  # P181
     assert contract["vol"]["atm_iv_30d"] > 0
     assert contract["vol"]["skew_25d"] > 0
     assert contract["vol"]["iv_rank_1y"] is None

@@ -65,6 +65,8 @@ HISTORY_ROW_KEYS = [
     "term_slope",
     "n_violations",
     "skew_25d",
+    "atm_tenor_days",
+    "term_slope_tenor_days",
 ]
 
 
@@ -85,6 +87,11 @@ class DailySummary:
     term_slope: float | None  # farthest atm_iv - nearest atm_iv; None if <2 usable expiries
     n_violations: int  # butterfly + calendar violations found on the fitted surface
     skew_25d: float | None = None  # 25-delta put IV - 25-delta call IV, on the atm_iv_30d expiry
+    # P181: atm_iv_30d is the nearest-to-30d *fitted* expiry, so its tenor drifts
+    # (31 days to 14 on the real RELIANCE chains) and term_slope spans whatever
+    # expiries survive. Rows written before 10 Nov 2026 lack these two keys.
+    atm_tenor_days: int | None = None  # days to the expiry atm_iv_30d and skew_25d read
+    term_slope_tenor_days: list[int] | None = None  # [nearest, farthest] days term_slope spans
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -105,6 +112,8 @@ class DailySummary:
                 "skew_25d": self.skew_25d,
                 "term_slope": self.term_slope,
                 "iv_rank_1y": None,
+                "atm_tenor_days": self.atm_tenor_days,
+                "term_slope_tenor_days": self.term_slope_tenor_days,
             }
         }
 
@@ -141,12 +150,19 @@ def compute_daily_summary(
     atm_iv_30d: float | None = None
     term_slope: float | None = None
     skew_25d: float | None = None
+    atm_tenor_days: int | None = None
+    term_slope_tenor_days: list[int] | None = None
+
+    def _days(T: float) -> int:
+        return int(round(T * 365.0))
 
     if points:
         atm_iv_near = points[0][2]
-        target_expiry, _, atm_iv_30d = min(points, key=lambda p: abs(p[1] - TARGET_TENOR_YEARS))
+        target_expiry, target_T, atm_iv_30d = min(points, key=lambda p: abs(p[1] - TARGET_TENOR_YEARS))
+        atm_tenor_days = _days(target_T)
         if len(points) >= 2:
             term_slope = points[-1][2] - points[0][2]
+            term_slope_tenor_days = [_days(points[0][1]), _days(points[-1][1])]
 
         smile = next(es for es in result.expiries if es.expiry == target_expiry)
         try:
@@ -166,6 +182,8 @@ def compute_daily_summary(
         term_slope=term_slope,
         n_violations=len(result.violations),
         skew_25d=skew_25d,
+        atm_tenor_days=atm_tenor_days,
+        term_slope_tenor_days=term_slope_tenor_days,
     )
 
 
