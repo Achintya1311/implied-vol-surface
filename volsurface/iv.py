@@ -277,3 +277,30 @@ def solve_chain_ivs(
         rows,
         columns=["expiry", "strike", "option_type", "mid_price", "T", "iv", "method", "converged", "error"],
     )
+
+
+FLOOR_BREAK = "below the no-arbitrage floor"
+
+
+def floor_breaks_at_ask(
+    table: pd.DataFrame,
+    quotes: pd.DataFrame,
+    spot: float,
+    r: float = DEFAULT_RATE,
+    q: float = DEFAULT_DIVIDEND_YIELD,
+    q_by_expiry: dict[str, float] | None = None,
+) -> pd.Series:
+    """P182: for each row of :func:`solve_chain_ivs`'s ``table`` (same order as
+    ``quotes``), True when the row is a floor break at the mid *and* its ask
+    is below the same floor too, i.e. the break is executable, not a mid-price
+    artefact. Same bounds, rate and per-expiry yield the solver used."""
+    flags = []
+    errors = table["error"].fillna("")
+    for err, T, quote in zip(errors, table["T"], quotes.itertuples(index=False)):
+        if FLOOR_BREAK not in err or pd.isna(quote.ask) or quote.ask <= 0:
+            flags.append(False)
+            continue
+        q_row = q_by_expiry.get(quote.expiry, q) if q_by_expiry else q
+        lo, _ = _no_arbitrage_bounds(spot, quote.strike, T, r, quote.option_type, q_row)
+        flags.append(bool(quote.ask < lo - BOUNDS_EPS))
+    return pd.Series(flags, index=table.index, dtype=bool)

@@ -40,6 +40,7 @@ from volsurface.iv import (
     AT_OR_PAST_EXPIRY,
     NO_TWO_SIDED_QUOTE,
     _valuation_date,
+    floor_breaks_at_ask,
     solve_chain_ivs,
     time_to_expiry,
 )
@@ -162,6 +163,14 @@ def main(argv: list[str] | None = None) -> int:
             f"  {floor.sum()} below the no-arbitrage floor ({(floor & itm).sum()} in the money at spot; "
             f"{(floor & one_sided).sum()} priced off a one-sided quote)"
         )
+        if floor.any():
+            at_ask = floor_breaks_at_ask(
+                table, quotes, snapshot.spot, r=args.rate, q=args.dividend_yield, q_by_expiry=q_by_expiry
+            )
+            print(
+                f"  {at_ask.sum()} of the {floor.sum()} with the ask below the floor too "
+                f"(executable; the rest break it at the mid only)"
+            )
         print(f"  {no_quote.sum()} with no two-sided quote (bid 0, ask 0)")
         if expiring.any():
             # P131: e.g. the 27 Oct 2026 batch, quoted on the 27-Oct expiry day.
