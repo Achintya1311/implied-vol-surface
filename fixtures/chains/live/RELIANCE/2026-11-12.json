@@ -1,0 +1,2548 @@
+{
+  "underlying": "RELIANCE",
+  "spot": 1339.7,
+  "timestamp": "2026-11-12T15:40:00",
+  "source": "nse",
+  "quotes": [
+    {
+      "expiry": "2026-11-23",
+      "strike": 980.0,
+      "option_type": "CE",
+      "last_price": 349.5,
+      "bid": 350.8,
+      "ask": 363.85,
+      "open_interest": 18,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 980.0,
+      "option_type": "PE",
+      "last_price": 0.3,
+      "bid": 0.25,
+      "ask": 0.3,
+      "open_interest": 894,
+      "volume": 21
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1000.0,
+      "option_type": "CE",
+      "last_price": 335.0,
+      "bid": 332.05,
+      "ask": 342.45,
+      "open_interest": 494,
+      "volume": 48
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1000.0,
+      "option_type": "PE",
+      "last_price": 0.3,
+      "bid": 0.3,
+      "ask": 0.35,
+      "open_interest": 1721,
+      "volume": 111
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1020.0,
+      "option_type": "CE",
+      "last_price": 310.5,
+      "bid": 310.45,
+      "ask": 324.7,
+      "open_interest": 90,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1020.0,
+      "option_type": "PE",
+      "last_price": 0.35,
+      "bid": 0.3,
+      "ask": 0.4,
+      "open_interest": 734,
+      "volume": 39
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1040.0,
+      "option_type": "CE",
+      "last_price": 248.9,
+      "bid": 290.25,
+      "ask": 305.1,
+      "open_interest": 4,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1040.0,
+      "option_type": "PE",
+      "last_price": 0.4,
+      "bid": 0.35,
+      "ask": 0.45,
+      "open_interest": 964,
+      "volume": 51
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1050.0,
+      "option_type": "CE",
+      "last_price": 259.5,
+      "bid": 280.2,
+      "ask": 295.3,
+      "open_interest": 159,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1050.0,
+      "option_type": "PE",
+      "last_price": 0.4,
+      "bid": 0.4,
+      "ask": 0.45,
+      "open_interest": 1483,
+      "volume": 142
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1060.0,
+      "option_type": "CE",
+      "last_price": 189.75,
+      "bid": 270.05,
+      "ask": 285.5,
+      "open_interest": 20,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1060.0,
+      "option_type": "PE",
+      "last_price": 0.5,
+      "bid": 0.45,
+      "ask": 0.5,
+      "open_interest": 739,
+      "volume": 115
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1070.0,
+      "option_type": "CE",
+      "last_price": 170.0,
+      "bid": 260.0,
+      "ask": 275.75,
+      "open_interest": 2,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1070.0,
+      "option_type": "PE",
+      "last_price": 0.45,
+      "bid": 0.45,
+      "ask": 0.5,
+      "open_interest": 661,
+      "volume": 143
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1080.0,
+      "option_type": "CE",
+      "last_price": 226.0,
+      "bid": 250.0,
+      "ask": 266.05,
+      "open_interest": 228,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1080.0,
+      "option_type": "PE",
+      "last_price": 0.5,
+      "bid": 0.5,
+      "ask": 0.55,
+      "open_interest": 994,
+      "volume": 148
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1090.0,
+      "option_type": "CE",
+      "last_price": 217.0,
+      "bid": 239.75,
+      "ask": 256.1,
+      "open_interest": 24,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1090.0,
+      "option_type": "PE",
+      "last_price": 0.55,
+      "bid": 0.5,
+      "ask": 0.6,
+      "open_interest": 1319,
+      "volume": 177
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1100.0,
+      "option_type": "CE",
+      "last_price": 241.0,
+      "bid": 231.5,
+      "ask": 240.0,
+      "open_interest": 1758,
+      "volume": 14
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1100.0,
+      "option_type": "PE",
+      "last_price": 0.5,
+      "bid": 0.5,
+      "ask": 0.55,
+      "open_interest": 16596,
+      "volume": 2424
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1110.0,
+      "option_type": "CE",
+      "last_price": 196.0,
+      "bid": 219.6,
+      "ask": 230.2,
+      "open_interest": 370,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1110.0,
+      "option_type": "PE",
+      "last_price": 0.5,
+      "bid": 0.5,
+      "ask": 0.55,
+      "open_interest": 809,
+      "volume": 248
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1120.0,
+      "option_type": "CE",
+      "last_price": 215.5,
+      "bid": 209.7,
+      "ask": 220.3,
+      "open_interest": 688,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1120.0,
+      "option_type": "PE",
+      "last_price": 0.55,
+      "bid": 0.5,
+      "ask": 0.6,
+      "open_interest": 1259,
+      "volume": 203
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1130.0,
+      "option_type": "CE",
+      "last_price": 214.75,
+      "bid": 199.9,
+      "ask": 217.4,
+      "open_interest": 419,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1130.0,
+      "option_type": "PE",
+      "last_price": 0.6,
+      "bid": 0.5,
+      "ask": 0.6,
+      "open_interest": 981,
+      "volume": 263
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1140.0,
+      "option_type": "CE",
+      "last_price": 194.85,
+      "bid": 189.7,
+      "ask": 200.35,
+      "open_interest": 909,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1140.0,
+      "option_type": "PE",
+      "last_price": 0.55,
+      "bid": 0.55,
+      "ask": 0.6,
+      "open_interest": 1409,
+      "volume": 553
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1150.0,
+      "option_type": "CE",
+      "last_price": 189.35,
+      "bid": 187.55,
+      "ask": 189.85,
+      "open_interest": 1857,
+      "volume": 318
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1150.0,
+      "option_type": "PE",
+      "last_price": 0.5,
+      "bid": 0.5,
+      "ask": 0.55,
+      "open_interest": 14849,
+      "volume": 2534
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1160.0,
+      "option_type": "CE",
+      "last_price": 180.0,
+      "bid": 171.3,
+      "ask": 180.0,
+      "open_interest": 2856,
+      "volume": 20
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1160.0,
+      "option_type": "PE",
+      "last_price": 0.65,
+      "bid": 0.65,
+      "ask": 0.7,
+      "open_interest": 2297,
+      "volume": 680
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1170.0,
+      "option_type": "CE",
+      "last_price": 169.0,
+      "bid": 160.05,
+      "ask": 170.6,
+      "open_interest": 2594,
+      "volume": 19
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1170.0,
+      "option_type": "PE",
+      "last_price": 0.75,
+      "bid": 0.75,
+      "ask": 0.8,
+      "open_interest": 2409,
+      "volume": 738
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1180.0,
+      "option_type": "CE",
+      "last_price": 159.2,
+      "bid": 157.7,
+      "ask": 159.6,
+      "open_interest": 4563,
+      "volume": 170
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1180.0,
+      "option_type": "PE",
+      "last_price": 0.85,
+      "bid": 0.8,
+      "ask": 0.85,
+      "open_interest": 3655,
+      "volume": 1562
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1190.0,
+      "option_type": "CE",
+      "last_price": 146.0,
+      "bid": 140.15,
+      "ask": 150.7,
+      "open_interest": 2964,
+      "volume": 12
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1190.0,
+      "option_type": "PE",
+      "last_price": 0.9,
+      "bid": 0.85,
+      "ask": 0.95,
+      "open_interest": 2145,
+      "volume": 831
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1200.0,
+      "option_type": "CE",
+      "last_price": 138.9,
+      "bid": 139.1,
+      "ask": 140.2,
+      "open_interest": 8905,
+      "volume": 1757
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1200.0,
+      "option_type": "PE",
+      "last_price": 1.0,
+      "bid": 0.95,
+      "ask": 1.0,
+      "open_interest": 16103,
+      "volume": 5024
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1210.0,
+      "option_type": "CE",
+      "last_price": 130.35,
+      "bid": 129.0,
+      "ask": 130.4,
+      "open_interest": 2806,
+      "volume": 105
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1210.0,
+      "option_type": "PE",
+      "last_price": 1.1,
+      "bid": 1.05,
+      "ask": 1.15,
+      "open_interest": 2828,
+      "volume": 858
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1220.0,
+      "option_type": "CE",
+      "last_price": 116.0,
+      "bid": 119.15,
+      "ask": 121.75,
+      "open_interest": 3141,
+      "volume": 220
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1220.0,
+      "option_type": "PE",
+      "last_price": 1.2,
+      "bid": 1.2,
+      "ask": 1.25,
+      "open_interest": 4606,
+      "volume": 1777
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1230.0,
+      "option_type": "CE",
+      "last_price": 108.55,
+      "bid": 108.95,
+      "ask": 115.65,
+      "open_interest": 4299,
+      "volume": 165
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1230.0,
+      "option_type": "PE",
+      "last_price": 1.4,
+      "bid": 1.4,
+      "ask": 1.45,
+      "open_interest": 5231,
+      "volume": 1305
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1240.0,
+      "option_type": "CE",
+      "last_price": 100.0,
+      "bid": 99.15,
+      "ask": 100.5,
+      "open_interest": 3735,
+      "volume": 627
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1240.0,
+      "option_type": "PE",
+      "last_price": 1.65,
+      "bid": 1.55,
+      "ask": 1.65,
+      "open_interest": 6006,
+      "volume": 1866
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1250.0,
+      "option_type": "CE",
+      "last_price": 89.65,
+      "bid": 90.0,
+      "ask": 91.0,
+      "open_interest": 12210,
+      "volume": 952
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1250.0,
+      "option_type": "PE",
+      "last_price": 1.85,
+      "bid": 1.75,
+      "ask": 1.85,
+      "open_interest": 13724,
+      "volume": 4502
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1260.0,
+      "option_type": "CE",
+      "last_price": 80.0,
+      "bid": 80.4,
+      "ask": 81.4,
+      "open_interest": 3397,
+      "volume": 408
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1260.0,
+      "option_type": "PE",
+      "last_price": 2.15,
+      "bid": 2.1,
+      "ask": 2.15,
+      "open_interest": 6122,
+      "volume": 2108
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1270.0,
+      "option_type": "CE",
+      "last_price": 70.45,
+      "bid": 70.7,
+      "ask": 71.8,
+      "open_interest": 5247,
+      "volume": 89
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1270.0,
+      "option_type": "PE",
+      "last_price": 2.7,
+      "bid": 2.6,
+      "ask": 2.7,
+      "open_interest": 3215,
+      "volume": 3546
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1280.0,
+      "option_type": "CE",
+      "last_price": 61.35,
+      "bid": 61.55,
+      "ask": 62.6,
+      "open_interest": 8411,
+      "volume": 433
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1280.0,
+      "option_type": "PE",
+      "last_price": 3.45,
+      "bid": 3.4,
+      "ask": 3.5,
+      "open_interest": 4029,
+      "volume": 6368
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1290.0,
+      "option_type": "CE",
+      "last_price": 53.1,
+      "bid": 52.7,
+      "ask": 53.5,
+      "open_interest": 11295,
+      "volume": 396
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1290.0,
+      "option_type": "PE",
+      "last_price": 4.55,
+      "bid": 4.5,
+      "ask": 4.6,
+      "open_interest": 3489,
+      "volume": 5988
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1300.0,
+      "option_type": "CE",
+      "last_price": 44.8,
+      "bid": 44.65,
+      "ask": 45.3,
+      "open_interest": 15796,
+      "volume": 8287
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1300.0,
+      "option_type": "PE",
+      "last_price": 6.3,
+      "bid": 6.2,
+      "ask": 6.3,
+      "open_interest": 15790,
+      "volume": 15421
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1310.0,
+      "option_type": "CE",
+      "last_price": 37.1,
+      "bid": 37.1,
+      "ask": 37.75,
+      "open_interest": 4328,
+      "volume": 2077
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1310.0,
+      "option_type": "PE",
+      "last_price": 8.6,
+      "bid": 8.5,
+      "ask": 8.65,
+      "open_interest": 3537,
+      "volume": 6111
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1320.0,
+      "option_type": "CE",
+      "last_price": 30.55,
+      "bid": 30.4,
+      "ask": 30.75,
+      "open_interest": 20604,
+      "volume": 8212
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1320.0,
+      "option_type": "PE",
+      "last_price": 11.8,
+      "bid": 11.6,
+      "ask": 11.85,
+      "open_interest": 6022,
+      "volume": 9882
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1330.0,
+      "option_type": "CE",
+      "last_price": 24.95,
+      "bid": 24.95,
+      "ask": 25.15,
+      "open_interest": 5139,
+      "volume": 11895
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1330.0,
+      "option_type": "PE",
+      "last_price": 16.0,
+      "bid": 16.0,
+      "ask": 16.15,
+      "open_interest": 3497,
+      "volume": 11466
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1340.0,
+      "option_type": "CE",
+      "last_price": 20.45,
+      "bid": 20.25,
+      "ask": 20.45,
+      "open_interest": 10361,
+      "volume": 28828
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1340.0,
+      "option_type": "PE",
+      "last_price": 21.3,
+      "bid": 21.2,
+      "ask": 21.45,
+      "open_interest": 3572,
+      "volume": 12243
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1350.0,
+      "option_type": "CE",
+      "last_price": 16.55,
+      "bid": 16.3,
+      "ask": 16.55,
+      "open_interest": 28688,
+      "volume": 34701
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1350.0,
+      "option_type": "PE",
+      "last_price": 27.25,
+      "bid": 27.2,
+      "ask": 27.55,
+      "open_interest": 2341,
+      "volume": 5097
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1360.0,
+      "option_type": "CE",
+      "last_price": 13.0,
+      "bid": 12.95,
+      "ask": 13.0,
+      "open_interest": 6427,
+      "volume": 13213
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1360.0,
+      "option_type": "PE",
+      "last_price": 34.75,
+      "bid": 33.7,
+      "ask": 34.3,
+      "open_interest": 1301,
+      "volume": 2750
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1370.0,
+      "option_type": "CE",
+      "last_price": 10.1,
+      "bid": 10.0,
+      "ask": 10.15,
+      "open_interest": 3244,
+      "volume": 11524
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1370.0,
+      "option_type": "PE",
+      "last_price": 41.7,
+      "bid": 40.65,
+      "ask": 41.3,
+      "open_interest": 412,
+      "volume": 832
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1380.0,
+      "option_type": "CE",
+      "last_price": 7.8,
+      "bid": 7.75,
+      "ask": 7.85,
+      "open_interest": 3134,
+      "volume": 10896
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1380.0,
+      "option_type": "PE",
+      "last_price": 48.75,
+      "bid": 48.2,
+      "ask": 49.2,
+      "open_interest": 469,
+      "volume": 332
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1390.0,
+      "option_type": "CE",
+      "last_price": 6.0,
+      "bid": 5.95,
+      "ask": 6.1,
+      "open_interest": 1182,
+      "volume": 6928
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1390.0,
+      "option_type": "PE",
+      "last_price": 55.55,
+      "bid": 56.35,
+      "ask": 57.3,
+      "open_interest": 64,
+      "volume": 33
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1400.0,
+      "option_type": "CE",
+      "last_price": 4.7,
+      "bid": 4.6,
+      "ask": 4.7,
+      "open_interest": 15490,
+      "volume": 18723
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1400.0,
+      "option_type": "PE",
+      "last_price": 65.9,
+      "bid": 64.95,
+      "ask": 65.75,
+      "open_interest": 3492,
+      "volume": 401
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1410.0,
+      "option_type": "CE",
+      "last_price": 3.6,
+      "bid": 3.6,
+      "ask": 3.7,
+      "open_interest": 1314,
+      "volume": 2535
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1410.0,
+      "option_type": "PE",
+      "last_price": 112.4,
+      "bid": 65.5,
+      "ask": 84.2,
+      "open_interest": 2,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1420.0,
+      "option_type": "CE",
+      "last_price": 2.85,
+      "bid": 2.8,
+      "ask": 2.9,
+      "open_interest": 1840,
+      "volume": 2784
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1420.0,
+      "option_type": "PE",
+      "last_price": 88.15,
+      "bid": 74.4,
+      "ask": 93.25,
+      "open_interest": 12,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1430.0,
+      "option_type": "CE",
+      "last_price": 2.3,
+      "bid": 2.25,
+      "ask": 2.3,
+      "open_interest": 1047,
+      "volume": 1077
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1430.0,
+      "option_type": "PE",
+      "last_price": 96.65,
+      "bid": 83.75,
+      "ask": 102.6,
+      "open_interest": 9,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1440.0,
+      "option_type": "CE",
+      "last_price": 1.85,
+      "bid": 1.75,
+      "ask": 1.85,
+      "open_interest": 1110,
+      "volume": 1092
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1440.0,
+      "option_type": "PE",
+      "last_price": 106.05,
+      "bid": 101.6,
+      "ask": 124.55,
+      "open_interest": 42,
+      "volume": 7
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1450.0,
+      "option_type": "CE",
+      "last_price": 1.45,
+      "bid": 1.4,
+      "ask": 1.5,
+      "open_interest": 1930,
+      "volume": 1849
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1450.0,
+      "option_type": "PE",
+      "last_price": 132.0,
+      "bid": 102.85,
+      "ask": 121.75,
+      "open_interest": 14,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1460.0,
+      "option_type": "CE",
+      "last_price": 1.2,
+      "bid": 1.1,
+      "ask": 1.2,
+      "open_interest": 818,
+      "volume": 607
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1460.0,
+      "option_type": "PE",
+      "last_price": 116.6,
+      "bid": 118.45,
+      "ask": 125.7,
+      "open_interest": 17,
+      "volume": 1
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1470.0,
+      "option_type": "CE",
+      "last_price": 1.0,
+      "bid": 0.95,
+      "ask": 1.0,
+      "open_interest": 810,
+      "volume": 698
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1470.0,
+      "option_type": "PE",
+      "last_price": 155.0,
+      "bid": 122.25,
+      "ask": 141.2,
+      "open_interest": 2,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1480.0,
+      "option_type": "CE",
+      "last_price": 0.8,
+      "bid": 0.8,
+      "ask": 0.85,
+      "open_interest": 1691,
+      "volume": 1044
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1480.0,
+      "option_type": "PE",
+      "last_price": 138.0,
+      "bid": 136.2,
+      "ask": 150.95,
+      "open_interest": 24,
+      "volume": 5
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1500.0,
+      "option_type": "CE",
+      "last_price": 0.65,
+      "bid": 0.6,
+      "ask": 0.65,
+      "open_interest": 1851,
+      "volume": 2641
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1500.0,
+      "option_type": "PE",
+      "last_price": 162.1,
+      "bid": 157.55,
+      "ask": 167.9,
+      "open_interest": 124,
+      "volume": 9
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1520.0,
+      "option_type": "CE",
+      "last_price": 0.45,
+      "bid": 0.4,
+      "ask": 0.45,
+      "open_interest": 3598,
+      "volume": 2660
+    },
+    {
+      "expiry": "2026-11-23",
+      "strike": 1520.0,
+      "option_type": "PE",
+      "last_price": 182.2,
+      "bid": 178.1,
+      "ask": 181.35,
+      "open_interest": 4615,
+      "volume": 112
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 960.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 960.0,
+      "option_type": "PE",
+      "last_price": 0.85,
+      "bid": 0.4,
+      "ask": 0.85,
+      "open_interest": 19,
+      "volume": 6
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 980.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 357.55,
+      "ask": 372.85,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 980.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.35,
+      "ask": 2.55,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1000.0,
+      "option_type": "CE",
+      "last_price": 342.0,
+      "bid": 337.8,
+      "ask": 353.5,
+      "open_interest": 88,
+      "volume": 50
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1000.0,
+      "option_type": "PE",
+      "last_price": 1.2,
+      "bid": 0.75,
+      "ask": 1.2,
+      "open_interest": 258,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1020.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 317.85,
+      "ask": 334.1,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1020.0,
+      "option_type": "PE",
+      "last_price": 5.15,
+      "bid": 0.6,
+      "ask": 2.45,
+      "open_interest": 13,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1040.0,
+      "option_type": "CE",
+      "last_price": 252.6,
+      "bid": 298.05,
+      "ask": 314.8,
+      "open_interest": 6,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1040.0,
+      "option_type": "PE",
+      "last_price": 0.9,
+      "bid": 0.9,
+      "ask": 0.95,
+      "open_interest": 153,
+      "volume": 101
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1050.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 288.2,
+      "ask": 305.1,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1050.0,
+      "option_type": "PE",
+      "last_price": 1.3,
+      "bid": 0.75,
+      "ask": 2.0,
+      "open_interest": 40,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1060.0,
+      "option_type": "CE",
+      "last_price": 125.0,
+      "bid": 278.35,
+      "ask": 295.45,
+      "open_interest": 1,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1060.0,
+      "option_type": "PE",
+      "last_price": 1.5,
+      "bid": 1.0,
+      "ask": 1.7,
+      "open_interest": 82,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1070.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 268.45,
+      "ask": 285.85,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1070.0,
+      "option_type": "PE",
+      "last_price": 11.5,
+      "bid": 0.6,
+      "ask": 2.95,
+      "open_interest": 1,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1080.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 258.65,
+      "ask": 276.25,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1080.0,
+      "option_type": "PE",
+      "last_price": 1.6,
+      "bid": 1.3,
+      "ask": 1.85,
+      "open_interest": 91,
+      "volume": 51
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1090.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 248.8,
+      "ask": 266.65,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1090.0,
+      "option_type": "PE",
+      "last_price": 3.0,
+      "bid": 0.8,
+      "ask": 3.05,
+      "open_interest": 35,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1100.0,
+      "option_type": "CE",
+      "last_price": 250.05,
+      "bid": 235.95,
+      "ask": 259.95,
+      "open_interest": 108,
+      "volume": 10
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1100.0,
+      "option_type": "PE",
+      "last_price": 1.9,
+      "bid": 1.85,
+      "ask": 1.95,
+      "open_interest": 603,
+      "volume": 174
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1110.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 229.25,
+      "ask": 247.55,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1110.0,
+      "option_type": "PE",
+      "last_price": 4.05,
+      "bid": 1.6,
+      "ask": 3.6,
+      "open_interest": 64,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1120.0,
+      "option_type": "CE",
+      "last_price": 235.0,
+      "bid": 219.5,
+      "ask": 238.1,
+      "open_interest": 60,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1120.0,
+      "option_type": "PE",
+      "last_price": 2.2,
+      "bid": 1.95,
+      "ask": 3.45,
+      "open_interest": 127,
+      "volume": 18
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1130.0,
+      "option_type": "CE",
+      "last_price": 166.2,
+      "bid": 209.65,
+      "ask": 228.65,
+      "open_interest": 8,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1130.0,
+      "option_type": "PE",
+      "last_price": 2.9,
+      "bid": 1.55,
+      "ask": 3.0,
+      "open_interest": 73,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1140.0,
+      "option_type": "CE",
+      "last_price": 138.35,
+      "bid": 200.0,
+      "ask": 219.1,
+      "open_interest": 22,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1140.0,
+      "option_type": "PE",
+      "last_price": 2.8,
+      "bid": 2.8,
+      "ask": 2.95,
+      "open_interest": 86,
+      "volume": 2
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1150.0,
+      "option_type": "CE",
+      "last_price": 212.0,
+      "bid": 190.75,
+      "ask": 209.8,
+      "open_interest": 23,
+      "volume": 4
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1150.0,
+      "option_type": "PE",
+      "last_price": 3.1,
+      "bid": 2.7,
+      "ask": 3.1,
+      "open_interest": 112,
+      "volume": 6
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1160.0,
+      "option_type": "CE",
+      "last_price": 192.0,
+      "bid": 181.3,
+      "ask": 197.0,
+      "open_interest": 49,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1160.0,
+      "option_type": "PE",
+      "last_price": 3.45,
+      "bid": 3.0,
+      "ask": 3.6,
+      "open_interest": 220,
+      "volume": 49
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1170.0,
+      "option_type": "CE",
+      "last_price": 177.5,
+      "bid": 158.0,
+      "ask": 205.8,
+      "open_interest": 38,
+      "volume": 2
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1170.0,
+      "option_type": "PE",
+      "last_price": 3.55,
+      "bid": 3.25,
+      "ask": 4.2,
+      "open_interest": 98,
+      "volume": 23
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1180.0,
+      "option_type": "CE",
+      "last_price": 170.0,
+      "bid": 162.3,
+      "ask": 181.45,
+      "open_interest": 390,
+      "volume": 5
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1180.0,
+      "option_type": "PE",
+      "last_price": 4.55,
+      "bid": 3.7,
+      "ask": 4.75,
+      "open_interest": 460,
+      "volume": 67
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1190.0,
+      "option_type": "CE",
+      "last_price": 142.0,
+      "bid": 152.9,
+      "ask": 172.1,
+      "open_interest": 75,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1190.0,
+      "option_type": "PE",
+      "last_price": 5.5,
+      "bid": 2.4,
+      "ask": 5.5,
+      "open_interest": 143,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1200.0,
+      "option_type": "CE",
+      "last_price": 159.0,
+      "bid": 150.85,
+      "ask": 158.95,
+      "open_interest": 654,
+      "volume": 10
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1200.0,
+      "option_type": "PE",
+      "last_price": 5.6,
+      "bid": 5.6,
+      "ask": 5.7,
+      "open_interest": 2196,
+      "volume": 604
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1210.0,
+      "option_type": "CE",
+      "last_price": 44.0,
+      "bid": 137.15,
+      "ask": 153.9,
+      "open_interest": 1,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1210.0,
+      "option_type": "PE",
+      "last_price": 6.7,
+      "bid": 6.1,
+      "ask": 6.55,
+      "open_interest": 68,
+      "volume": 40
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1220.0,
+      "option_type": "CE",
+      "last_price": 135.0,
+      "bid": 135.0,
+      "ask": 140.7,
+      "open_interest": 64,
+      "volume": 4
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1220.0,
+      "option_type": "PE",
+      "last_price": 7.45,
+      "bid": 6.75,
+      "ask": 7.6,
+      "open_interest": 389,
+      "volume": 205
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1230.0,
+      "option_type": "CE",
+      "last_price": 110.0,
+      "bid": 117.5,
+      "ask": 136.45,
+      "open_interest": 26,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1230.0,
+      "option_type": "PE",
+      "last_price": 8.75,
+      "bid": 8.45,
+      "ask": 8.85,
+      "open_interest": 210,
+      "volume": 160
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1240.0,
+      "option_type": "CE",
+      "last_price": 120.9,
+      "bid": 116.65,
+      "ask": 126.95,
+      "open_interest": 216,
+      "volume": 26
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1240.0,
+      "option_type": "PE",
+      "last_price": 10.15,
+      "bid": 10.0,
+      "ask": 10.25,
+      "open_interest": 446,
+      "volume": 407
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1250.0,
+      "option_type": "CE",
+      "last_price": 114.0,
+      "bid": 107.3,
+      "ask": 114.0,
+      "open_interest": 688,
+      "volume": 43
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1250.0,
+      "option_type": "PE",
+      "last_price": 11.9,
+      "bid": 11.65,
+      "ask": 11.95,
+      "open_interest": 1278,
+      "volume": 607
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1260.0,
+      "option_type": "CE",
+      "last_price": 102.5,
+      "bid": 99.3,
+      "ask": 113.05,
+      "open_interest": 609,
+      "volume": 14
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1260.0,
+      "option_type": "PE",
+      "last_price": 13.7,
+      "bid": 12.4,
+      "ask": 13.75,
+      "open_interest": 663,
+      "volume": 264
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1270.0,
+      "option_type": "CE",
+      "last_price": 97.0,
+      "bid": 87.95,
+      "ask": 102.95,
+      "open_interest": 101,
+      "volume": 5
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1270.0,
+      "option_type": "PE",
+      "last_price": 15.8,
+      "bid": 15.4,
+      "ask": 15.85,
+      "open_interest": 322,
+      "volume": 357
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1280.0,
+      "option_type": "CE",
+      "last_price": 87.75,
+      "bid": 84.1,
+      "ask": 88.9,
+      "open_interest": 237,
+      "volume": 32
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1280.0,
+      "option_type": "PE",
+      "last_price": 18.0,
+      "bid": 17.9,
+      "ask": 18.25,
+      "open_interest": 733,
+      "volume": 708
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1290.0,
+      "option_type": "CE",
+      "last_price": 84.0,
+      "bid": 78.9,
+      "ask": 83.15,
+      "open_interest": 135,
+      "volume": 1
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1290.0,
+      "option_type": "PE",
+      "last_price": 21.5,
+      "bid": 20.6,
+      "ask": 21.1,
+      "open_interest": 418,
+      "volume": 472
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1300.0,
+      "option_type": "CE",
+      "last_price": 74.15,
+      "bid": 70.9,
+      "ask": 74.7,
+      "open_interest": 2912,
+      "volume": 1691
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1300.0,
+      "option_type": "PE",
+      "last_price": 24.15,
+      "bid": 24.0,
+      "ask": 24.25,
+      "open_interest": 2314,
+      "volume": 1321
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1310.0,
+      "option_type": "CE",
+      "last_price": 67.35,
+      "bid": 64.55,
+      "ask": 68.4,
+      "open_interest": 197,
+      "volume": 70
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1310.0,
+      "option_type": "PE",
+      "last_price": 28.15,
+      "bid": 27.45,
+      "ask": 27.75,
+      "open_interest": 263,
+      "volume": 305
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1320.0,
+      "option_type": "CE",
+      "last_price": 62.05,
+      "bid": 61.6,
+      "ask": 62.5,
+      "open_interest": 401,
+      "volume": 288
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1320.0,
+      "option_type": "PE",
+      "last_price": 32.5,
+      "bid": 31.1,
+      "ask": 31.6,
+      "open_interest": 460,
+      "volume": 420
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1330.0,
+      "option_type": "CE",
+      "last_price": 55.9,
+      "bid": 56.0,
+      "ask": 56.6,
+      "open_interest": 513,
+      "volume": 462
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1330.0,
+      "option_type": "PE",
+      "last_price": 36.0,
+      "bid": 32.05,
+      "ask": 36.15,
+      "open_interest": 284,
+      "volume": 214
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1340.0,
+      "option_type": "CE",
+      "last_price": 51.05,
+      "bid": 50.9,
+      "ask": 51.55,
+      "open_interest": 7782,
+      "volume": 6122
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1340.0,
+      "option_type": "PE",
+      "last_price": 40.85,
+      "bid": 40.25,
+      "ask": 41.0,
+      "open_interest": 2108,
+      "volume": 2786
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1350.0,
+      "option_type": "CE",
+      "last_price": 45.85,
+      "bid": 45.95,
+      "ask": 46.6,
+      "open_interest": 5745,
+      "volume": 4355
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1350.0,
+      "option_type": "PE",
+      "last_price": 45.6,
+      "bid": 45.05,
+      "ask": 45.9,
+      "open_interest": 1759,
+      "volume": 1559
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1360.0,
+      "option_type": "CE",
+      "last_price": 41.1,
+      "bid": 41.0,
+      "ask": 41.85,
+      "open_interest": 970,
+      "volume": 972
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1360.0,
+      "option_type": "PE",
+      "last_price": 50.45,
+      "bid": 46.35,
+      "ask": 52.1,
+      "open_interest": 519,
+      "volume": 559
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1370.0,
+      "option_type": "CE",
+      "last_price": 36.8,
+      "bid": 36.8,
+      "ask": 37.45,
+      "open_interest": 520,
+      "volume": 365
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1370.0,
+      "option_type": "PE",
+      "last_price": 56.05,
+      "bid": 46.85,
+      "ask": 60.75,
+      "open_interest": 211,
+      "volume": 183
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1380.0,
+      "option_type": "CE",
+      "last_price": 32.9,
+      "bid": 30.75,
+      "ask": 33.55,
+      "open_interest": 471,
+      "volume": 489
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1380.0,
+      "option_type": "PE",
+      "last_price": 62.0,
+      "bid": 59.05,
+      "ask": 66.65,
+      "open_interest": 261,
+      "volume": 119
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1390.0,
+      "option_type": "CE",
+      "last_price": 29.45,
+      "bid": 26.45,
+      "ask": 29.9,
+      "open_interest": 247,
+      "volume": 290
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1390.0,
+      "option_type": "PE",
+      "last_price": 67.95,
+      "bid": 67.75,
+      "ask": 69.2,
+      "open_interest": 12,
+      "volume": 13
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1400.0,
+      "option_type": "CE",
+      "last_price": 26.05,
+      "bid": 26.05,
+      "ask": 26.35,
+      "open_interest": 3914,
+      "volume": 3512
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1400.0,
+      "option_type": "PE",
+      "last_price": 74.55,
+      "bid": 74.1,
+      "ask": 79.85,
+      "open_interest": 1392,
+      "volume": 212
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1410.0,
+      "option_type": "CE",
+      "last_price": 23.3,
+      "bid": 23.05,
+      "ask": 23.45,
+      "open_interest": 342,
+      "volume": 531
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1410.0,
+      "option_type": "PE",
+      "last_price": 81.35,
+      "bid": 81.0,
+      "ask": 82.7,
+      "open_interest": 75,
+      "volume": 12
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1420.0,
+      "option_type": "CE",
+      "last_price": 20.75,
+      "bid": 19.8,
+      "ask": 20.7,
+      "open_interest": 443,
+      "volume": 519
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1420.0,
+      "option_type": "PE",
+      "last_price": 89.0,
+      "bid": 88.2,
+      "ask": 90.45,
+      "open_interest": 84,
+      "volume": 1
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1430.0,
+      "option_type": "CE",
+      "last_price": 18.2,
+      "bid": 17.05,
+      "ask": 18.3,
+      "open_interest": 130,
+      "volume": 179
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1430.0,
+      "option_type": "PE",
+      "last_price": 117.7,
+      "bid": 95.2,
+      "ask": 98.25,
+      "open_interest": 75,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1440.0,
+      "option_type": "CE",
+      "last_price": 15.55,
+      "bid": 15.65,
+      "ask": 16.05,
+      "open_interest": 439,
+      "volume": 298
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1440.0,
+      "option_type": "PE",
+      "last_price": 102.75,
+      "bid": 102.7,
+      "ask": 107.2,
+      "open_interest": 39,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1450.0,
+      "option_type": "CE",
+      "last_price": 13.75,
+      "bid": 13.8,
+      "ask": 14.0,
+      "open_interest": 1110,
+      "volume": 796
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1450.0,
+      "option_type": "PE",
+      "last_price": 128.0,
+      "bid": 107.1,
+      "ask": 118.7,
+      "open_interest": 1,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1460.0,
+      "option_type": "CE",
+      "last_price": 12.1,
+      "bid": 12.0,
+      "ask": 12.35,
+      "open_interest": 481,
+      "volume": 550
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1460.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 115.25,
+      "ask": 127.7,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1470.0,
+      "option_type": "CE",
+      "last_price": 10.8,
+      "bid": 10.15,
+      "ask": 10.8,
+      "open_interest": 159,
+      "volume": 171
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1470.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 118.95,
+      "ask": 137.4,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1480.0,
+      "option_type": "CE",
+      "last_price": 9.25,
+      "bid": 9.0,
+      "ask": 9.35,
+      "open_interest": 1130,
+      "volume": 371
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1480.0,
+      "option_type": "PE",
+      "last_price": 144.35,
+      "bid": 130.5,
+      "ask": 146.3,
+      "open_interest": 17,
+      "volume": 0
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1500.0,
+      "option_type": "CE",
+      "last_price": 7.15,
+      "bid": 7.1,
+      "ask": 7.3,
+      "open_interest": 2107,
+      "volume": 2616
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1500.0,
+      "option_type": "PE",
+      "last_price": 155.0,
+      "bid": 153.55,
+      "ask": 159.0,
+      "open_interest": 485,
+      "volume": 72
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1520.0,
+      "option_type": "CE",
+      "last_price": 5.5,
+      "bid": 5.0,
+      "ask": 5.6,
+      "open_interest": 128,
+      "volume": 230
+    },
+    {
+      "expiry": "2026-12-29",
+      "strike": 1520.0,
+      "option_type": "PE",
+      "last_price": 172.0,
+      "bid": 163.1,
+      "ask": 182.05,
+      "open_interest": 1,
+      "volume": 1
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 960.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 960.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.1,
+      "ask": 3.15,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1000.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1000.0,
+      "option_type": "PE",
+      "last_price": 2.2,
+      "bid": 0.65,
+      "ask": 1.35,
+      "open_interest": 19,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1040.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1040.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.5,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1060.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1060.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.5,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1080.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1080.0,
+      "option_type": "PE",
+      "last_price": 2.3,
+      "bid": 2.0,
+      "ask": 5.0,
+      "open_interest": 4,
+      "volume": 2
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1100.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1100.0,
+      "option_type": "PE",
+      "last_price": 3.2,
+      "bid": 2.35,
+      "ask": 3.3,
+      "open_interest": 153,
+      "volume": 5
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1120.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1120.0,
+      "option_type": "PE",
+      "last_price": 22.9,
+      "bid": 2.6,
+      "ask": 0.0,
+      "open_interest": 10,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1140.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1140.0,
+      "option_type": "PE",
+      "last_price": 15.0,
+      "bid": 3.1,
+      "ask": 5.0,
+      "open_interest": 4,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1160.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1160.0,
+      "option_type": "PE",
+      "last_price": 5.85,
+      "bid": 3.1,
+      "ask": 5.85,
+      "open_interest": 104,
+      "volume": 20
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1180.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1180.0,
+      "option_type": "PE",
+      "last_price": 17.5,
+      "bid": 3.1,
+      "ask": 0.0,
+      "open_interest": 17,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1200.0,
+      "option_type": "CE",
+      "last_price": 154.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 140,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1200.0,
+      "option_type": "PE",
+      "last_price": 8.2,
+      "bid": 8.4,
+      "ask": 9.75,
+      "open_interest": 353,
+      "volume": 41
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1220.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1220.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 7.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1240.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1240.0,
+      "option_type": "PE",
+      "last_price": 15.6,
+      "bid": 10.05,
+      "ask": 17.9,
+      "open_interest": 28,
+      "volume": 2
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1260.0,
+      "option_type": "CE",
+      "last_price": 84.0,
+      "bid": 81.0,
+      "ask": 0.0,
+      "open_interest": 83,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1260.0,
+      "option_type": "PE",
+      "last_price": 22.0,
+      "bid": 16.1,
+      "ask": 22.0,
+      "open_interest": 8,
+      "volume": 5
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1280.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1280.0,
+      "option_type": "PE",
+      "last_price": 22.05,
+      "bid": 23.15,
+      "ask": 0.0,
+      "open_interest": 22,
+      "volume": 11
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1300.0,
+      "option_type": "CE",
+      "last_price": 87.2,
+      "bid": 85.0,
+      "ask": 93.15,
+      "open_interest": 284,
+      "volume": 27
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1300.0,
+      "option_type": "PE",
+      "last_price": 30.15,
+      "bid": 29.8,
+      "ask": 31.2,
+      "open_interest": 429,
+      "volume": 96
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1320.0,
+      "option_type": "CE",
+      "last_price": 50.45,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 2,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1320.0,
+      "option_type": "PE",
+      "last_price": 39.95,
+      "bid": 30.15,
+      "ask": 0.0,
+      "open_interest": 9,
+      "volume": 14
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1340.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 44.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1340.0,
+      "option_type": "PE",
+      "last_price": 49.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 12,
+      "volume": 10
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1360.0,
+      "option_type": "CE",
+      "last_price": 57.0,
+      "bid": 55.0,
+      "ask": 57.0,
+      "open_interest": 80,
+      "volume": 22
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1360.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1380.0,
+      "option_type": "CE",
+      "last_price": 0.0,
+      "bid": 35.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1380.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1400.0,
+      "option_type": "CE",
+      "last_price": 39.2,
+      "bid": 38.6,
+      "ask": 39.85,
+      "open_interest": 1063,
+      "volume": 255
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1400.0,
+      "option_type": "PE",
+      "last_price": 80.0,
+      "bid": 40.1,
+      "ask": 0.0,
+      "open_interest": 13,
+      "volume": 6
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1420.0,
+      "option_type": "CE",
+      "last_price": 19.95,
+      "bid": 25.0,
+      "ask": 0.0,
+      "open_interest": 1,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1420.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1440.0,
+      "option_type": "CE",
+      "last_price": 28.0,
+      "bid": 24.95,
+      "ask": 27.5,
+      "open_interest": 31,
+      "volume": 13
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1440.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1460.0,
+      "option_type": "CE",
+      "last_price": 21.0,
+      "bid": 15.1,
+      "ask": 30.95,
+      "open_interest": 3,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1460.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1480.0,
+      "option_type": "CE",
+      "last_price": 19.05,
+      "bid": 18.6,
+      "ask": 19.45,
+      "open_interest": 191,
+      "volume": 127
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1480.0,
+      "option_type": "PE",
+      "last_price": 0.0,
+      "bid": 0.0,
+      "ask": 0.0,
+      "open_interest": 0,
+      "volume": 0
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1520.0,
+      "option_type": "CE",
+      "last_price": 13.8,
+      "bid": 12.5,
+      "ask": 13.8,
+      "open_interest": 62,
+      "volume": 60
+    },
+    {
+      "expiry": "2027-01-25",
+      "strike": 1520.0,
+      "option_type": "PE",
+      "last_price": 170.0,
+      "bid": 150.0,
+      "ask": 0.0,
+      "open_interest": 375,
+      "volume": 27
+    }
+  ]
+}
