@@ -477,5 +477,23 @@
       7,
       43
     ]
+  },
+  {
+    "run_date": "2026-11-17",
+    "data_date": "2026-11-17",
+    "underlying": "RELIANCE",
+    "source": "nse",
+    "spot": 1367.0,
+    "n_expiries": 2,
+    "atm_iv_30d": 0.24074567778176262,
+    "atm_iv_near": 0.223939610128394,
+    "term_slope": 0.016806067653368617,
+    "n_violations": 49,
+    "skew_25d": -0.0064043951267495625,
+    "atm_tenor_days": 42,
+    "term_slope_tenor_days": [
+      6,
+      42
+    ]
   }
 ]
