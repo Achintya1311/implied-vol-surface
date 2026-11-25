@@ -579,5 +579,20 @@
     "skew_25d": null,
     "atm_tenor_days": null,
     "term_slope_tenor_days": null
+  },
+  {
+    "run_date": "2026-11-25",
+    "data_date": "2026-11-25",
+    "underlying": "RELIANCE",
+    "source": "nse",
+    "spot": 1373.9,
+    "n_expiries": 1,
+    "atm_iv_30d": 0.24914362277336782,
+    "atm_iv_near": 0.24914362277336782,
+    "term_slope": null,
+    "n_violations": 12,
+    "skew_25d": 0.023326514886740424,
+    "atm_tenor_days": 34,
+    "term_slope_tenor_days": null
   }
 ]
